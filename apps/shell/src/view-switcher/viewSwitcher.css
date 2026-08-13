@@ -1,0 +1,15 @@
+.view-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--shell-muted, #5b6b7c);
+}
+
+.view-switcher select {
+  font: inherit;
+  padding: 0.25rem 0.45rem;
+  border: 1px solid var(--shell-line, #d7dee6);
+  border-radius: 0.3rem;
+  background: white;
+}

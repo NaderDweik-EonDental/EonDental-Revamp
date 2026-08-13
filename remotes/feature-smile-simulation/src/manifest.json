@@ -1,0 +1,16 @@
+{
+  "featureId": "smile-simulation",
+  "displayName": "Smile simulation",
+  "owner": "clinical-team",
+  "allowedRoles": ["doctor"],
+  "versions": [{ "version": "1.4.0", "status": "active" }],
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "maxShadeOptions": { "type": "number" },
+      "allowWhiteningPreview": { "type": "boolean" }
+    },
+    "required": ["maxShadeOptions", "allowWhiteningPreview"],
+    "additionalProperties": false
+  }
+}

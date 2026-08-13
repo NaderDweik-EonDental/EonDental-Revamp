@@ -1,0 +1,24 @@
+# Dependencies
+node_modules
+
+# Builds
+dist
+.nx
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Logs / OS
+*.log
+.logs
+.DS_Store
+
+# Editor
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# Test / coverage
+coverage

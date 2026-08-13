@@ -1,0 +1,16 @@
+.feature-mount__status {
+  margin: 0;
+  color: #5b6b7c;
+}
+
+.feature-mount__error {
+  padding: 1rem 1.25rem;
+  border: 1px solid #e2b6b6;
+  border-radius: 0.5rem;
+  background: #fff5f5;
+  color: #9b1c1c;
+}
+
+.feature-mount__error p {
+  margin: 0.35rem 0 0;
+}

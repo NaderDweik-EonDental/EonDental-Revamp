@@ -1,0 +1,23 @@
+{
+  "featureId": "3d-viewer",
+  "displayName": "3D viewer",
+  "owner": "clinical-team",
+  "allowedRoles": ["doctor"],
+  "versions": [
+    { "version": "1.0.0", "status": "deprecated" },
+    { "version": "1.3.1", "status": "active" }
+  ],
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "allowedFormats": {
+        "type": "array",
+        "items": { "type": "string" },
+        "minItems": 1
+      },
+      "defaultCamera": { "type": "string", "enum": ["front", "occlusal", "lateral"] }
+    },
+    "required": ["allowedFormats", "defaultCamera"],
+    "additionalProperties": false
+  }
+}

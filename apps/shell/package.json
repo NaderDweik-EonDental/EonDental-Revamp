@@ -1,0 +1,38 @@
+{
+  "name": "@eon/shell",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@eon/core-config-client": "workspace:*",
+    "@eon/core-entitlements": "workspace:*",
+    "@eon/core-sdk": "workspace:*",
+    "@eon/mocks-config-api": "workspace:*",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-error-boundary": "^6.0.0",
+    "react-router-dom": "^7.7.1",
+    "semver": "^7.7.2"
+  },
+  "devDependencies": {
+    "@module-federation/vite": "^1.7.1",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@types/semver": "^7.7.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "msw": "^2.10.4",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  },
+  "msw": {
+    "workerDirectory": ["public"]
+  }
+}

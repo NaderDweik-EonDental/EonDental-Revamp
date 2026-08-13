@@ -1,0 +1,28 @@
+.doctor-home {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.doctor-home__features {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.doctor-home__disabled-list {
+  padding: 1rem 1.25rem;
+  border: 1px dashed #c5ced8;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 55%);
+  color: #5b6b7c;
+}
+
+.doctor-home__disabled-list h2 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.doctor-home__disabled-list ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.875rem;
+}

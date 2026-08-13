@@ -1,0 +1,87 @@
+.super-admin {
+  max-width: 52rem;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.super-admin h1,
+.super-admin h2,
+.super-admin h3 {
+  margin: 0 0 0.4rem;
+}
+
+.super-admin__meta,
+.super-admin__message {
+  margin: 0;
+  color: #5b6b7c;
+  font-size: 0.9rem;
+}
+
+.super-admin__message {
+  color: #0f6e56;
+}
+
+.super-admin__card,
+.super-admin__client {
+  padding: 1rem 1.15rem;
+  border: 1px solid #d7dee6;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 75%);
+}
+
+.super-admin__catalog-row,
+.super-admin__entitlement-row,
+.super-admin__inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+}
+
+.super-admin__catalog-row p {
+  margin: 0.2rem 0 0;
+  color: #5b6b7c;
+  font-size: 0.85rem;
+}
+
+.super-admin__entitlements {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0.75rem 0;
+}
+
+.super-admin__check {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.super-admin input,
+.super-admin select,
+.super-admin button {
+  font: inherit;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid #d7dee6;
+  border-radius: 0.3rem;
+}
+
+.super-admin button {
+  cursor: pointer;
+  background: #6b4f2c;
+  border-color: #6b4f2c;
+  color: white;
+  font-weight: 600;
+}
+
+.super-admin button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.super-admin__client {
+  margin-top: 1rem;
+}

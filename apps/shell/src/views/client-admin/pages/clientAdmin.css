@@ -1,0 +1,70 @@
+.client-admin {
+  max-width: 48rem;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.client-admin h1,
+.client-admin h2 {
+  margin: 0 0 0.35rem;
+}
+
+.client-admin__meta,
+.client-admin__message {
+  margin: 0;
+  color: #5b6b7c;
+  font-size: 0.9rem;
+}
+
+.client-admin__message {
+  color: #0f6e56;
+}
+
+.client-admin__ceilings,
+.client-admin__doctor {
+  padding: 1rem 1.15rem;
+  border: 1px solid #d7dee6;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 75%);
+}
+
+.client-admin__ceilings ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.875rem;
+}
+
+.client-admin__assignments {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.85rem 0;
+}
+
+.client-admin__assignments label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.875rem;
+}
+
+.client-admin select,
+.client-admin button,
+.client-admin input {
+  font: inherit;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid #d7dee6;
+  border-radius: 0.3rem;
+}
+
+.client-admin button {
+  cursor: pointer;
+  background: #1f5f8b;
+  border-color: #1f5f8b;
+  color: white;
+  font-weight: 600;
+}
+
+.client-admin button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}

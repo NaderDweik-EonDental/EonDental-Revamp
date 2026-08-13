@@ -1,0 +1,55 @@
+.shell-layout {
+  --shell-ink: #15202b;
+  --shell-muted: #5b6b7c;
+  --shell-line: #d7dee6;
+  --shell-bg: #eef2f6;
+  --shell-surface: #ffffff;
+
+  min-height: 100vh;
+  margin: 0;
+  color: var(--shell-ink);
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, #d9e8e2 0%, transparent 55%),
+    radial-gradient(ellipse 70% 45% at 100% 0%, #dce4f0 0%, transparent 50%),
+    var(--shell-bg);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+.shell-layout__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--shell-line);
+  background: color-mix(in srgb, var(--shell-surface) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.shell-layout__brand {
+  color: inherit;
+  text-decoration: none;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.shell-layout__session {
+  margin: 0;
+  color: var(--shell-muted);
+  font-size: 0.875rem;
+}
+
+.shell-layout__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.shell-layout__main {
+  padding: 1.5rem;
+}
+
+body {
+  margin: 0;
+}

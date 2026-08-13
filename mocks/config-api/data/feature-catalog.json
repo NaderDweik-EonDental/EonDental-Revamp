@@ -1,0 +1,5 @@
+[
+  { "featureId": "case-submission", "versions": ["1.0.0", "2.1.0"] },
+  { "featureId": "smile-simulation", "versions": ["1.4.0"] },
+  { "featureId": "3d-viewer", "versions": ["1.0.0", "1.3.1"] }
+]

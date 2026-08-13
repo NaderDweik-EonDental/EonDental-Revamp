@@ -1,0 +1,18 @@
+import type { SVGProps } from 'react';
+type IconProps = SVGProps<SVGSVGElement>;
+export declare function InfoIcon(props: IconProps): import("react").JSX.Element;
+export declare function PackageIcon(props: IconProps): import("react").JSX.Element;
+export declare function CameraIcon(props: IconProps): import("react").JSX.Element;
+export declare function ImpressionIcon(props: IconProps): import("react").JSX.Element;
+export declare function PrescriptionIcon(props: IconProps): import("react").JSX.Element;
+export declare function SummaryIcon(props: IconProps): import("react").JSX.Element;
+export declare function CheckCircleIcon(props: IconProps): import("react").JSX.Element;
+export declare function StepsIcon(props: IconProps): import("react").JSX.Element;
+export declare function DurationIcon(props: IconProps): import("react").JSX.Element;
+export declare function RefinementIcon(props: IconProps): import("react").JSX.Element;
+export declare function RevisionIcon(props: IconProps): import("react").JSX.Element;
+export declare function RetainerIcon(props: IconProps): import("react").JSX.Element;
+export declare function UploadIcon(props: IconProps): import("react").JSX.Element;
+export declare function LinkIcon(props: IconProps): import("react").JSX.Element;
+export {};
+//# sourceMappingURL=icons.d.ts.map
