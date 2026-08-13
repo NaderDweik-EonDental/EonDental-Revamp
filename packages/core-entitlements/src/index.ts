@@ -5,3 +5,8 @@ export type {
   UserEntitlement,
 } from './types.js';
 export { resolveEffectiveEntitlement } from './resolveEffectiveEntitlement.js';
+export {
+  sanitizeAssignmentsAgainstCeiling,
+  type SanitizeAssignmentsResult,
+  type VersionAssignment,
+} from './sanitizeAssignmentsAgainstCeiling.js';

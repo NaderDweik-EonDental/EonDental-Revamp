@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   loadModel,
   type LoadModelResult,
@@ -10,6 +10,7 @@ import type {
   ViewerConfig,
   ViewerLoadRequest,
 } from '../domain/viewerRules.js';
+import { loadDefaultArchFiles } from './defaultArchFiles.js';
 
 export type ArchFiles = {
   upper: File | null;
@@ -27,6 +28,55 @@ export function useViewer(args: { config: ViewerConfig; api: ViewerApi }) {
   const [loading, setLoading] = useState(false);
   const [lastResult, setLastResult] = useState<LoadModelResult | null>(null);
   const [meshReady, setMeshReady] = useState(false);
+  const defaultsStarted = useRef(false);
+
+  useEffect(() => {
+    if (defaultsStarted.current) return;
+    defaultsStarted.current = true;
+
+    let cancelled = false;
+
+    async function applyDefaults() {
+      setLoading(true);
+      try {
+        const defaults = await loadDefaultArchFiles();
+        if (cancelled) return;
+
+        const nextRequest: ViewerLoadRequest = {
+          upperModelName: defaults.upper.name,
+          lowerModelName: defaults.lower.name,
+          format: 'stl',
+          camera: args.config.defaultCamera,
+        };
+
+        setFiles(defaults);
+        setRequest(nextRequest);
+
+        const result = await loadModel(nextRequest, args.config, args.api);
+        if (cancelled) return;
+        setLastResult(result);
+        setMeshReady(result.ok);
+      } catch (error) {
+        if (cancelled) return;
+        setLastResult({
+          ok: false,
+          errors: [
+            error instanceof Error
+              ? error.message
+              : 'Failed to load default arch models',
+          ],
+        });
+        setMeshReady(false);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void applyDefaults();
+    return () => {
+      cancelled = true;
+    };
+  }, [args.api, args.config]);
 
   return {
     request,

@@ -3,6 +3,67 @@
   gap: 1.5rem;
 }
 
+.doctor-home__header h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.35rem;
+}
+
+.doctor-home__meta {
+  margin: 0;
+  color: #5b6b7c;
+  font-size: 0.9rem;
+}
+
+.doctor-home__cascade {
+  padding: 1rem 1.25rem;
+  border: 1px solid #d7dee6;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 75%);
+}
+
+.doctor-home__cascade h2 {
+  margin: 0 0 0.65rem;
+  font-size: 0.95rem;
+}
+
+.doctor-home__cascade ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.doctor-home__cascade li {
+  display: grid;
+  grid-template-columns: minmax(9rem, auto) auto 1fr;
+  gap: 0.55rem 0.75rem;
+  align-items: baseline;
+  font-size: 0.875rem;
+}
+
+.doctor-home__cascade small {
+  color: #5b6b7c;
+}
+
+.doctor-home__pill {
+  display: inline-flex;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.doctor-home__pill--on {
+  background: rgba(15 110 86 / 0.12);
+  color: #0f6e56;
+}
+
+.doctor-home__pill--off {
+  background: rgba(155 28 28 / 0.1);
+  color: #9b1c1c;
+}
+
 .doctor-home__features {
   display: grid;
   gap: 1.5rem;
@@ -25,4 +86,10 @@
   margin: 0;
   padding-left: 1.1rem;
   font-size: 0.875rem;
+}
+
+@media (max-width: 720px) {
+  .doctor-home__cascade li {
+    grid-template-columns: 1fr;
+  }
 }

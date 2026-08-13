@@ -7,7 +7,7 @@ export interface FeatureAssignment {
 
 export interface DoctorRecord {
   userId: string;
-  clientId: string | null;
+  clientId: string;
   role: 'doctor';
   assignments: FeatureAssignment[];
 }

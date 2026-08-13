@@ -2,6 +2,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { federation } from '@module-federation/vite';
 
+const base = process.env.VITE_BASE_PATH ?? '/';
+
 const caseSubmissionRemote =
   process.env.VITE_CASE_SUBMISSION_REMOTE ??
   'http://localhost:5001/mf-manifest.json';
@@ -17,6 +19,7 @@ const shared = {
 } as const;
 
 export default defineConfig({
+  base,
   plugins: [
     // federation before react — avoids orphaned virtual loadShare modules in dev
     federation({

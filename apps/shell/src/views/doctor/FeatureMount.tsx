@@ -21,6 +21,10 @@ const remoteLoaders: Record<FeatureId, () => Promise<RemoteModule>> = {
   '3d-viewer': () => import('feature3dViewer/FeatureRoot'),
 };
 
+export function isMountableFeature(featureId: string): featureId is FeatureId {
+  return Object.prototype.hasOwnProperty.call(remoteLoaders, featureId);
+}
+
 function FeatureLoadingSkeleton({ featureId }: { featureId: FeatureId }) {
   return (
     <p role="status" className="feature-mount__status">

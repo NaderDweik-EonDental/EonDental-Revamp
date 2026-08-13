@@ -33,32 +33,6 @@ describe('resolveEffectiveEntitlement', () => {
     });
   });
 
-  it('returns disabled for an independent doctor with no assignment', () => {
-    const result = resolveEffectiveEntitlement(
-      null,
-      user({ clientId: null, assignedVersion: undefined }),
-    );
-
-    expect(result).toEqual({
-      featureId: 'case-submission',
-      enabled: false,
-      version: null,
-    });
-  });
-
-  it('returns the assigned version for an independent doctor with an assignment', () => {
-    const result = resolveEffectiveEntitlement(
-      null,
-      user({ clientId: null, assignedVersion: '1.0.0' }),
-    );
-
-    expect(result).toEqual({
-      featureId: 'case-submission',
-      enabled: true,
-      version: '1.0.0',
-    });
-  });
-
   it('clamps to the ceiling when a doctor is assigned above it', () => {
     const result = resolveEffectiveEntitlement(
       tenant({ allowedVersionRange: { max: '2.0.0' } }),

@@ -78,8 +78,8 @@ export function SmileSimulationScreen(props: {
             <p className="smile-sim__version">v{props.version}</p>
           ) : null}
           <p className="smile-sim__brand-copy">
-            Upload a patient smile photo and let Hugging Face generate a
-            realistic after preview with corrected, aligned teeth.
+            A demo smile photo is loaded by default. Replace it or run Hugging
+            Face for a realistic after preview with corrected, aligned teeth.
           </p>
           <div className="smile-sim__brand-glow" aria-hidden="true" />
         </aside>

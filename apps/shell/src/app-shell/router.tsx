@@ -30,36 +30,42 @@ function LazyView({
   return <Suspense fallback={<p>{fallback}</p>}>{children}</Suspense>;
 }
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <Layout />,
+      children: [
+        { index: true, element: <Navigate to="/doctor" replace /> },
+        {
+          path: 'doctor',
+          element: (
+            <LazyView fallback="Loading doctor view…">
+              <DoctorHome />
+            </LazyView>
+          ),
+        },
+        {
+          path: 'client-admin',
+          element: (
+            <LazyView fallback="Loading client admin…">
+              <ClientAdminHome />
+            </LazyView>
+          ),
+        },
+        {
+          path: 'super-admin',
+          element: (
+            <LazyView fallback="Loading super admin…">
+              <SuperAdminHome />
+            </LazyView>
+          ),
+        },
+      ],
+    },
+  ],
   {
-    path: '/',
-    element: <Layout />,
-    children: [
-      { index: true, element: <Navigate to="/doctor" replace /> },
-      {
-        path: 'doctor',
-        element: (
-          <LazyView fallback="Loading doctor view…">
-            <DoctorHome />
-          </LazyView>
-        ),
-      },
-      {
-        path: 'client-admin',
-        element: (
-          <LazyView fallback="Loading client admin…">
-            <ClientAdminHome />
-          </LazyView>
-        ),
-      },
-      {
-        path: 'super-admin',
-        element: (
-          <LazyView fallback="Loading super admin…">
-            <SuperAdminHome />
-          </LazyView>
-        ),
-      },
-    ],
+    basename:
+      import.meta.env.BASE_URL.replace(/\/$/, '') || undefined,
   },
-]);
+);

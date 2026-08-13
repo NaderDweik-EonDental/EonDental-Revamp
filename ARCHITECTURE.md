@@ -33,7 +33,7 @@ Four ingredients, each a standard pattern in its own right:
 - **Multi-tenant** — a "client" in our domain language is a tenant. Tenant-scoping is everywhere.
 - **Hierarchical entitlement resolution** — super admin sets a ceiling per client; the client
   assigns to its doctors within that ceiling; the effective access a doctor gets is always the
-  narrower of the two. Independent doctors (no client) get assigned directly by the super admin.
+  narrower of the two.
 - **Single shell** — one host application. It contains three role-based views (super admin,
   client admin, doctor), switched by a view switcher, not three separate deployed apps. This can
   be split into separate host apps later without touching the remotes — the views are already
@@ -68,10 +68,9 @@ Four ingredients, each a standard pattern in its own right:
 
 ## 3. The three roles and the entitlement model
 
-Three roles: **super admin**, **client admin** (a "client" = tenant), **doctor**. A doctor either
-belongs to exactly one client, or is independent (belongs to none). Doctors can be reassigned
-between clients — that's a data change (a nullable `clientId` on the doctor record plus an audit
-trail), not an architectural one.
+Three roles: **super admin**, **client admin** (a "client" = tenant), **doctor**. Every doctor
+belongs to exactly one client. Doctors can be reassigned between clients — that's a data change
+(a `clientId` on the doctor record plus an audit trail), not an architectural one.
 
 **The cascade:**
 
@@ -79,7 +78,6 @@ trail), not an architectural one.
   exist) and sets, per client, an **entitlement ceiling**: which features are enabled for that
   client, and the range/max version they're allowed to offer.
 - The client admin, within that ceiling, assigns an actual version to each of its doctors.
-- An independent doctor has no client tier — the super admin assigns directly.
 - **Effective access for a doctor is always the narrower of the two limits above it.** A client
   can never grant a doctor more than its own ceiling allows, even by mistake — the resolver
   enforces this, it is never left to UI validation alone.
@@ -98,9 +96,9 @@ export interface TenantEntitlement {
 
 export interface UserEntitlement {
   userId: string;
-  clientId: string | null; // null = independent doctor
+  clientId: string; // every doctor belongs to exactly one client
   featureId: FeatureId;
-  assignedVersion?: string; // set by client admin, or by super admin if independent
+  assignedVersion?: string; // set by client admin
 }
 
 export interface EffectiveEntitlement {
@@ -120,17 +118,9 @@ import semver from 'semver';
 import type { TenantEntitlement, UserEntitlement, EffectiveEntitlement } from './types';
 
 export function resolveEffectiveEntitlement(
-  tenant: TenantEntitlement | null,
+  tenant: TenantEntitlement,
   user: UserEntitlement,
 ): EffectiveEntitlement {
-  // Independent doctor: no client tier, no ceiling to clamp against.
-  if (tenant === null) {
-    if (!user.assignedVersion) {
-      return { featureId: user.featureId, enabled: false, version: null };
-    }
-    return { featureId: user.featureId, enabled: true, version: user.assignedVersion };
-  }
-
   if (!tenant.enabled) {
     return { featureId: user.featureId, enabled: false, version: null };
   }
@@ -144,8 +134,7 @@ export function resolveEffectiveEntitlement(
 ```
 
 **Required tests before this is considered done** (write these first, not after):
-tenant disabled → disabled result; independent doctor with no assignment → disabled; independent
-doctor with assignment → that version; doctor assigned above ceiling → clamped to ceiling; doctor
+tenant disabled → disabled result; doctor assigned above ceiling → clamped to ceiling; doctor
 assigned below ceiling → their own version; doctor with no assignment → defaults to ceiling max.
 
 ---
@@ -402,9 +391,7 @@ means changing `core-config-client`'s implementation, nothing upstream of it.
 // mocks/config-api/data/doctors.json
 [
   { "userId": "doc_123", "clientId": "eon-dental", "role": "doctor",
-    "assignments": [{ "featureId": "case-submission", "assignedVersion": "2.1.0" }] },
-  { "userId": "doc_456", "clientId": null, "role": "doctor",
-    "assignments": [{ "featureId": "case-submission", "assignedVersion": "1.0.0" }] }
+    "assignments": [{ "featureId": "case-submission", "assignedVersion": "2.1.0" }] }
 ]
 ```
 

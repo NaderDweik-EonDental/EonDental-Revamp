@@ -9,7 +9,7 @@ export interface TenantEntitlement {
 
 export interface UserEntitlement {
   userId: string;
-  clientId: string | null;
+  clientId: string;
   featureId: FeatureId;
   assignedVersion?: string;
 }

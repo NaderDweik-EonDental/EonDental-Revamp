@@ -96,8 +96,8 @@ export function ViewerScreen(props: {
               <p className="viewer__version">v{props.version}</p>
             ) : null}
             <p className="viewer__brand-copy">
-              Upload upper and lower STL arches and inspect them in a real
-              WebGL viewport.
+              Demo upper and lower arches load by default. Replace them or
+              inspect the WebGL viewport.
             </p>
           </div>
 

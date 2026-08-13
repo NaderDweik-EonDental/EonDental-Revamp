@@ -70,7 +70,9 @@ export function SuperAdminHome() {
       <header>
         <h1>Super admin</h1>
         <p className="super-admin__meta">
-          Global catalog and per-client entitlement ceilings.
+          Global catalog and per-client entitlement ceilings. Enabling a feature
+          for a client turns it on for that client&apos;s doctors (they inherit
+          the ceiling max unless client-admin assigns a lower version).
         </p>
       </header>
 

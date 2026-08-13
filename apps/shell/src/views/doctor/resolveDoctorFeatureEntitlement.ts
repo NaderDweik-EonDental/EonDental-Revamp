@@ -17,7 +17,7 @@ import type {
 export function resolveDoctorFeatureEntitlement(
   featureId: FeatureId,
   doctor: DoctorRecord,
-  client: ClientRecord | null,
+  client: ClientRecord,
 ): EffectiveEntitlement {
   const assignment = doctor.assignments.find((a) => a.featureId === featureId);
 
@@ -27,17 +27,6 @@ export function resolveDoctorFeatureEntitlement(
     featureId,
     assignedVersion: assignment?.assignedVersion,
   };
-
-  // Independent doctor: no client tier.
-  if (doctor.clientId === null) {
-    return resolveEffectiveEntitlement(null, user);
-  }
-
-  if (!client) {
-    throw new Error(
-      `Client ${doctor.clientId} not found for doctor ${doctor.userId}`,
-    );
-  }
 
   const record = client.entitlements.find((e) => e.featureId === featureId);
   const tenant: TenantEntitlement = record

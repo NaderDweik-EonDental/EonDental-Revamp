@@ -1,5 +1,9 @@
 import { http, HttpResponse } from 'msw';
-import type { FeatureId } from '@eon/core-entitlements';
+import {
+  sanitizeAssignmentsAgainstCeiling,
+  type FeatureId,
+  type TenantEntitlement,
+} from '@eon/core-entitlements';
 import {
   store,
   type ClientEntitlementRecord,
@@ -77,7 +81,36 @@ export const configApiHandlers = [
       return HttpResponse.json({ message: 'Doctor not found' }, { status: 404 });
     }
     const assignments = (await request.json()) as FeatureAssignment[];
-    doctor.assignments = assignments;
+
+    const client = store.clients.find((c) => c.clientId === doctor.clientId);
+    if (!client) {
+      return HttpResponse.json(
+        { message: `Client ${doctor.clientId} not found for doctor` },
+        { status: 400 },
+      );
+    }
+
+    const tenantEntitlements: TenantEntitlement[] = client.entitlements.map(
+      (entry) => ({
+        clientId: client.clientId,
+        featureId: entry.featureId,
+        enabled: entry.enabled,
+        allowedVersionRange: entry.allowedVersionRange,
+      }),
+    );
+
+    const sanitized = sanitizeAssignmentsAgainstCeiling(
+      assignments,
+      tenantEntitlements,
+    );
+    if (!sanitized.ok) {
+      return HttpResponse.json(
+        { message: 'Invalid assignments', errors: sanitized.errors },
+        { status: 400 },
+      );
+    }
+
+    doctor.assignments = sanitized.assignments;
     return HttpResponse.json(doctor);
   }),
 

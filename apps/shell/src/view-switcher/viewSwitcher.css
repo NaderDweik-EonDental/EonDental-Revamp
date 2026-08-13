@@ -6,6 +6,10 @@
   color: var(--shell-muted, #5b6b7c);
 }
 
+.view-switcher__label {
+  white-space: nowrap;
+}
+
 .view-switcher select {
   font: inherit;
   padding: 0.25rem 0.45rem;

@@ -98,24 +98,32 @@ export function ClientAdminHome() {
       <header>
         <h1>Client admin</h1>
         <p className="client-admin__meta">
-          Managing <code>{client.clientId}</code> — assign doctor versions within
-          the tenant ceiling.
+          Managing <code>{client.clientId}</code>. Super-admin sets which
+          features are enabled (ceiling). You assign versions within that
+          ceiling. Unassigned doctors inherit the ceiling max version when the
+          feature is enabled.
         </p>
       </header>
 
       {message ? <p className="client-admin__message">{message}</p> : null}
 
       <div className="client-admin__ceilings">
-        <h2>Ceiling (read-only)</h2>
+        <h2>Client ceiling (from super-admin)</h2>
         <ul>
-          {client.entitlements.map((entitlement) => (
-            <li key={entitlement.featureId}>
-              <code>{entitlement.featureId}</code> —{' '}
-              {entitlement.enabled
-                ? `max ${entitlement.allowedVersionRange.max}`
-                : 'disabled'}
-            </li>
-          ))}
+          {catalog.map((entry) => {
+            const entitlement = entitlementForFeature(
+              client.entitlements,
+              entry.featureId,
+            );
+            return (
+              <li key={entry.featureId}>
+                <code>{entry.featureId}</code> —{' '}
+                {entitlement?.enabled
+                  ? `enabled · max ${entitlement.allowedVersionRange.max}`
+                  : 'disabled for this client (doctors cannot access)'}
+              </li>
+            );
+          })}
         </ul>
       </div>
 
@@ -192,7 +200,11 @@ function DoctorAssignmentCard({
                 disabled={versions.length === 0}
                 onChange={(e) => setVersion(featureId, e.target.value)}
               >
-                <option value="">— unassigned —</option>
+                <option value="">
+                  {entitlement?.enabled
+                    ? `— inherit ceiling (v${entitlement.allowedVersionRange.max}) —`
+                    : '— disabled by client ceiling —'}
+                </option>
                 {versions.map((version) => (
                   <option key={version} value={version}>
                     {version}

@@ -6,7 +6,9 @@ import { router } from './app-shell/router.js';
 import { ViewSwitcherProvider } from './view-switcher/ViewSwitcherContext.js';
 
 async function prepare(): Promise<void> {
-  if (import.meta.env.DEV) {
+  const enableMsw =
+    import.meta.env.DEV || import.meta.env.VITE_ENABLE_MSW === 'true';
+  if (enableMsw) {
     const { worker } = await import('./mocks/browser.js');
     await worker.start({
       onUnhandledRequest: 'bypass',

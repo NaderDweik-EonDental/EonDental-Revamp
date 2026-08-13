@@ -10,6 +10,7 @@
     "dev:smile-simulation": "pnpm --filter @eon/feature-smile-simulation dev",
     "dev:3d-viewer": "pnpm --filter @eon/feature-3d-viewer dev",
     "build": "nx run-many -t build",
+    "build:pages": "node scripts/build-github-pages.mjs",
     "test": "nx run-many -t test",
     "lint": "nx run-many -t lint",
     "typecheck": "nx run-many -t typecheck",

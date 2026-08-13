@@ -83,22 +83,18 @@ describe('resolveDoctorFeatureEntitlement', () => {
     });
   });
 
-  it('resolves an independent doctor with no tenant record', () => {
-    const independent: DoctorRecord = {
-      userId: 'doc_456',
-      clientId: null,
-      role: 'doctor',
-      assignments: [
-        { featureId: 'case-submission', assignedVersion: '1.0.0' },
-      ],
+  it('defaults an unassigned tenant doctor to the ceiling max', () => {
+    const unassigned: DoctorRecord = {
+      ...tenantDoctor,
+      assignments: [],
     };
 
     expect(
-      resolveDoctorFeatureEntitlement('case-submission', independent, null),
+      resolveDoctorFeatureEntitlement('case-submission', unassigned, client),
     ).toEqual({
       featureId: 'case-submission',
       enabled: true,
-      version: '1.0.0',
+      version: '2.1.0',
     });
   });
 });

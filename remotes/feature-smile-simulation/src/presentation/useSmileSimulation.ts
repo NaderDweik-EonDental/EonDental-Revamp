@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   runSimulation,
   type RunSimulationResult,
@@ -13,6 +13,7 @@ import {
   generateSmileWithHuggingFace,
   isHuggingFaceConfigured,
 } from '../infrastructure/huggingfaceSmileClient.js';
+import { loadDefaultSmilePhoto } from './defaultSmilePhoto.js';
 
 export function useSmileSimulation(args: {
   config: SmileSimulationConfig;
@@ -32,6 +33,39 @@ export function useSmileSimulation(args: {
   const [lastResult, setLastResult] = useState<RunSimulationResult | null>(
     null,
   );
+  const defaultsStarted = useRef(false);
+
+  useEffect(() => {
+    if (defaultsStarted.current) return;
+    defaultsStarted.current = true;
+
+    let cancelled = false;
+
+    async function applyDefaultPhoto() {
+      try {
+        const photo = await loadDefaultSmilePhoto();
+        if (cancelled) return;
+        setSourcePhoto(photo);
+        setDraft((current) => ({
+          ...current,
+          sourcePhotoName: photo.name,
+          patientId: current.patientId || 'PT-DEMO',
+        }));
+      } catch (error) {
+        if (cancelled) return;
+        setPreviewError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to load default smile photo',
+        );
+      }
+    }
+
+    void applyDefaultPhoto();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return {
     draft,
