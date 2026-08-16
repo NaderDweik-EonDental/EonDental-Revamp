@@ -19,7 +19,8 @@ import './clientAdmin.css';
 
 export function ClientAdminHome() {
   const { configClient } = useAuth();
-  const { managedClientId, configRevision } = useViewSwitcher();
+  const { managedClientId, configRevision, bumpConfigRevision } =
+    useViewSwitcher();
   const [client, setClient] = useState<ClientRecord | null>(null);
   const [doctors, setDoctors] = useState<DoctorRecord[]>([]);
   const [catalog, setCatalog] = useState<FeatureCatalogEntry[]>([]);
@@ -77,10 +78,9 @@ export function ClientAdminHome() {
   ) {
     setMessage(null);
     await configClient.putDoctorAssignments(doctor.userId, assignments);
+    bumpConfigRevision();
     await reload();
-    setMessage(
-      `Saved assignments for ${doctor.userId}. Switch to Doctor view to see the effect.`,
-    );
+    setMessage(`Updated versions for ${doctor.userId}.`);
   }
 
   if (status === 'loading') {
@@ -102,9 +102,9 @@ export function ClientAdminHome() {
         <h1>Client admin</h1>
         <p className="client-admin__meta">
           Managing <code>{client.clientId}</code>. Super-admin turns features
-          on and checks which versions this client may use. You assign one of
-          those versions to each doctor. Unassigned doctors inherit the highest
-          allowed version.
+          on and checks which versions this client may use. Version changes
+          save immediately. Unassigned doctors inherit the highest allowed
+          version.
         </p>
       </header>
 
@@ -195,11 +195,21 @@ function DoctorAssignmentCard({
   function setVersion(featureId: FeatureId, assignedVersion: string) {
     setDraft((current) => {
       const without = current.filter((a) => a.featureId !== featureId);
-      if (!assignedVersion) {
-        return without;
-      }
-      return [...without, { featureId, assignedVersion }];
+      const next = !assignedVersion
+        ? without
+        : [...without, { featureId, assignedVersion }];
+      void persist(next);
+      return next;
     });
+  }
+
+  async function persist(assignments: FeatureAssignment[]) {
+    setSaving(true);
+    try {
+      await onSave(doctor, assignments);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -247,22 +257,11 @@ function DoctorAssignmentCard({
           })
         )}
       </div>
-      <button
-        type="button"
-        disabled={saving}
-        onClick={() => {
-          void (async () => {
-            setSaving(true);
-            try {
-              await onSave(doctor, draft);
-            } finally {
-              setSaving(false);
-            }
-          })();
-        }}
-      >
-        {saving ? 'Saving…' : 'Save assignments'}
-      </button>
+      {saving ? (
+        <p className="client-admin__meta">Saving…</p>
+      ) : (
+        <p className="client-admin__meta">Saved for this doctor immediately.</p>
+      )}
     </article>
   );
 }
