@@ -7,18 +7,18 @@ const ceilings: TenantEntitlement[] = [
     clientId: 'eon-dental',
     featureId: 'case-submission',
     enabled: true,
-    allowedVersionRange: { max: '2.1.0' },
+    allowedVersions: ['1.0.0', '2.1.0'],
   },
   {
     clientId: 'eon-dental',
     featureId: 'smile-simulation',
     enabled: false,
-    allowedVersionRange: { max: '1.4.0' },
+    allowedVersions: ['1.4.0'],
   },
 ];
 
 describe('sanitizeAssignmentsAgainstCeiling', () => {
-  it('clamps versions above the ceiling', () => {
+  it('clamps versions that are not in the allowed set', () => {
     const result = sanitizeAssignmentsAgainstCeiling(
       [{ featureId: 'case-submission', assignedVersion: '9.9.9' }],
       ceilings,

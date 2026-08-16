@@ -6,8 +6,9 @@ type SmilePhotoCompareProps = {
     error: string | null;
     targetShade: ToothShade;
     includeWhitening: boolean;
+    showShadeAndWhitening?: boolean;
     aiReady: boolean;
 };
-export declare function SmilePhotoCompare({ photoFile, afterImageUrl, processing, error, targetShade, includeWhitening, aiReady, }: SmilePhotoCompareProps): import("react").JSX.Element;
+export declare function SmilePhotoCompare({ photoFile, afterImageUrl, processing, error, targetShade, includeWhitening, showShadeAndWhitening, aiReady, }: SmilePhotoCompareProps): import("react").JSX.Element;
 export {};
 //# sourceMappingURL=SmilePhotoCompare.d.ts.map

@@ -3,7 +3,10 @@
   "displayName": "Smile simulation",
   "owner": "clinical-team",
   "allowedRoles": ["doctor"],
-  "versions": [{ "version": "1.4.0", "status": "active" }],
+  "versions": [
+    { "version": "1.0.0", "status": "active" },
+    { "version": "1.4.0", "status": "active" }
+  ],
   "configSchema": {
     "type": "object",
     "properties": {

@@ -41,19 +41,30 @@ describe('loadModel', () => {
     expect(api.load).not.toHaveBeenCalled();
   });
 
-  it('rejects non-STL formats that cannot render in the viewport', async () => {
+  it('rejects PLY when the STL-only version is assigned', async () => {
     const api = fakeApi();
     const result = await loadModel(
       { ...validRequest, format: 'ply' },
-      config,
+      { allowedFormats: ['stl'], defaultCamera: 'front' },
       api,
     );
 
     expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.errors.some((e) => e.includes('STL'))).toBe(true);
-    }
     expect(api.load).not.toHaveBeenCalled();
+  });
+
+  it('loads a PLY request when the dual-format version allows it', async () => {
+    const api = fakeApi();
+    const plyRequest = {
+      ...validRequest,
+      upperModelName: 'upper-arch.ply',
+      lowerModelName: 'lower-arch.ply',
+      format: 'ply' as const,
+    };
+    const result = await loadModel(plyRequest, config, api);
+
+    expect(result.ok).toBe(true);
+    expect(api.load).toHaveBeenCalledWith(plyRequest);
   });
 
   it('loads a valid model through the API', async () => {

@@ -27,6 +27,22 @@ const FORMAT_LABEL: Record<ModelFormat, string> = {
   obj: 'OBJ',
 };
 
+function acceptForFormats(formats: ModelFormat[]): string {
+  const tokens: string[] = [];
+  if (formats.includes('stl')) tokens.push('.stl', 'model/stl', 'application/sla');
+  if (formats.includes('ply')) tokens.push('.ply', 'application/x-ply');
+  if (formats.includes('obj')) tokens.push('.obj');
+  return tokens.join(',');
+}
+
+function formatFromFileName(name: string): ModelFormat | null {
+  const lower = name.toLowerCase();
+  if (lower.endsWith('.stl')) return 'stl';
+  if (lower.endsWith('.ply')) return 'ply';
+  if (lower.endsWith('.obj')) return 'obj';
+  return null;
+}
+
 export function ViewerScreen(props: {
   config: ViewerConfig;
   api: ViewerApi;
@@ -54,6 +70,11 @@ export function ViewerScreen(props: {
   const formats = props.config.allowedFormats.filter((f): f is ModelFormat =>
     ['stl', 'ply', 'obj'].includes(f),
   );
+  const meshAccept = acceptForFormats(formats);
+  const meshHint =
+    formats.length > 1
+      ? formats.map((f) => FORMAT_LABEL[f]).join(' or ')
+      : FORMAT_LABEL[formats[0] ?? 'stl'];
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -68,12 +89,13 @@ export function ViewerScreen(props: {
     (arch: 'upper' | 'lower') => (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0] ?? null;
       if (!file) return;
-      if (!file.name.toLowerCase().endsWith('.stl')) {
-        setViewportError('Please upload an .stl file for the 3D viewport.');
+      const format = formatFromFileName(file.name);
+      if (!format || !formats.includes(format)) {
+        setViewportError(`Please upload a ${meshHint} file for this version.`);
         return;
       }
       setViewportError(null);
-      setFormat('stl');
+      setFormat(format);
       if (arch === 'upper') setUpperModel(file);
       else setLowerModel(file);
     };
@@ -104,18 +126,22 @@ export function ViewerScreen(props: {
           <form className="viewer__form" onSubmit={onSubmit}>
             <div className="viewer__fields">
               <ArchUpload
-                label="Upper arch STL"
+                label={`Upper arch ${meshHint}`}
                 fileName={request.upperModelName}
                 inputRef={upperInputRef}
                 onPick={onArchPick('upper')}
                 swatch="upper"
+                accept={meshAccept}
+                hint={meshHint}
               />
               <ArchUpload
-                label="Lower arch STL"
+                label={`Lower arch ${meshHint}`}
                 fileName={request.lowerModelName}
                 inputRef={lowerInputRef}
                 onPick={onArchPick('lower')}
                 swatch="lower"
+                accept={meshAccept}
+                hint={meshHint}
               />
 
               <fieldset className="viewer__field">
@@ -123,19 +149,12 @@ export function ViewerScreen(props: {
                 <div className="viewer__chip-row" role="radiogroup" aria-label="Format">
                   {formats.map((format) => {
                     const selected = request.format === format;
-                    const disabled = format !== 'stl';
                     return (
                       <button
                         key={format}
                         type="button"
                         role="radio"
                         aria-checked={selected}
-                        disabled={disabled}
-                        title={
-                          disabled
-                            ? 'Only STL is rendered in this viewer'
-                            : undefined
-                        }
                         className={
                           selected
                             ? 'viewer__chip viewer__chip--selected'
@@ -283,6 +302,8 @@ function ArchUpload(props: {
   inputRef: RefObject<HTMLInputElement | null>;
   onPick: (event: ChangeEvent<HTMLInputElement>) => void;
   swatch: 'upper' | 'lower';
+  accept: string;
+  hint: string;
 }) {
   return (
     <div className="viewer__field">
@@ -304,12 +325,12 @@ function ArchUpload(props: {
           {props.fileName ? (
             <>
               <strong>{props.fileName}</strong>
-              <small>Click to replace STL</small>
+              <small>Click to replace mesh</small>
             </>
           ) : (
             <>
-              <strong>Choose {props.swatch} STL</strong>
-              <small>Binary or ASCII .stl mesh</small>
+              <strong>Choose {props.swatch} mesh</strong>
+              <small>{props.hint} mesh</small>
             </>
           )}
         </span>
@@ -318,7 +339,7 @@ function ArchUpload(props: {
         ref={props.inputRef}
         className="viewer__file-input"
         type="file"
-        accept=".stl,model/stl,application/sla"
+        accept={props.accept}
         onChange={props.onPick}
         tabIndex={-1}
         aria-label={props.label}

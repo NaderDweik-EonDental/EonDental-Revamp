@@ -1,10 +1,10 @@
 {
   "latestErrorEvent": {
     "code": "TYPE-001",
-    "message": "Failed to generate type declaration. Execute the below cmd to reproduce and fix the error. #TYPE-001\nargs: {\"cmd\":\"/var/home/nader/.nvm/versions/node/v22.23.0/bin/node /var/home/nader/Music/poc/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc --project /var/home/nader/Music/poc/remotes/feature-3d-viewer/node_modules/.federation/tsconfig.75051039bf8fd809cd2e1cec9ee99f78.json\"}\nView the docs to see how to solve: https://module-federation.io/guide/troubleshooting/type#type-001",
+    "message": "Failed to generate type declaration. Execute the below cmd to reproduce and fix the error. #TYPE-001\nargs: {\"cmd\":\"/var/home/nader/.nvm/versions/node/v22.23.0/bin/node /var/home/nader/Music/poc/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc --project /var/home/nader/Music/poc/remotes/feature-3d-viewer/node_modules/.federation/tsconfig.b341b99983d5a4239184cd460e610dce.json\"}\nView the docs to see how to solve: https://module-federation.io/guide/troubleshooting/type#type-001",
     "args": {
-      "cmd": "/var/home/nader/.nvm/versions/node/v22.23.0/bin/node /var/home/nader/Music/poc/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc --project /var/home/nader/Music/poc/remotes/feature-3d-viewer/node_modules/.federation/tsconfig.75051039bf8fd809cd2e1cec9ee99f78.json"
+      "cmd": "/var/home/nader/.nvm/versions/node/v22.23.0/bin/node /var/home/nader/Music/poc/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc --project /var/home/nader/Music/poc/remotes/feature-3d-viewer/node_modules/.federation/tsconfig.b341b99983d5a4239184cd460e610dce.json"
     },
-    "timestamp": 1786538422803
+    "timestamp": 1786863823207
   }
 }

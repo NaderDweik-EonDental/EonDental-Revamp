@@ -16,6 +16,7 @@ type SmilePhotoCompareProps = {
   error: string | null;
   targetShade: ToothShade;
   includeWhitening: boolean;
+  showShadeAndWhitening?: boolean;
   aiReady: boolean;
 };
 
@@ -29,6 +30,7 @@ export function SmilePhotoCompare({
   error,
   targetShade,
   includeWhitening,
+  showShadeAndWhitening = true,
   aiReady,
 }: SmilePhotoCompareProps) {
   const [beforeUrl, setBeforeUrl] = useState<string | null>(null);
@@ -100,8 +102,9 @@ export function SmilePhotoCompare({
         <div>
           <p className="smile-sim__compare-title">Before / After AI preview</p>
           <p className="smile-sim__compare-sub">
-            Target {targetShade}
-            {includeWhitening ? ' · whitening on' : ''}
+            {showShadeAndWhitening
+              ? `Target ${targetShade}${includeWhitening ? ' · whitening on' : ''}`
+              : 'Alignment preview'}
             {aiReady ? ' · Hugging Face' : ' · HF token missing'}
           </p>
         </div>

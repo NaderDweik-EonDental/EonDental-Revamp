@@ -68,9 +68,13 @@ export function DoctorHome() {
             doctor,
             client,
           );
-          const config = entitlement.enabled
-            ? await configClient.getFeatureConfig(featureId)
-            : {};
+          const config =
+            entitlement.enabled && entitlement.version
+              ? await configClient.getFeatureConfig(
+                  featureId,
+                  entitlement.version,
+                )
+              : {};
           features.push({
             featureId,
             entitlement,
@@ -119,7 +123,6 @@ export function DoctorHome() {
   }
 
   const enabled = state.features.filter((f) => f.entitlement.enabled);
-  const disabled = state.features.filter((f) => !f.entitlement.enabled);
 
   return (
     <div className="doctor-home">
@@ -131,28 +134,22 @@ export function DoctorHome() {
         </p>
       </header>
 
-      <aside className="doctor-home__cascade" aria-label="Entitlement cascade">
-        <h2>Entitlement status</h2>
-        <ul>
-          {state.features.map((feature) => (
-            <li key={feature.featureId}>
-              <code>{feature.featureId}</code>
-              <span
-                className={
-                  feature.entitlement.enabled
-                    ? 'doctor-home__pill doctor-home__pill--on'
-                    : 'doctor-home__pill doctor-home__pill--off'
-                }
-              >
-                {feature.entitlement.enabled
-                  ? `on · v${feature.entitlement.version}`
-                  : 'off'}
-              </span>
-              <small>{feature.reason}</small>
-            </li>
-          ))}
-        </ul>
-      </aside>
+      {enabled.length > 0 ? (
+        <aside className="doctor-home__cascade" aria-label="Entitlement cascade">
+          <h2>Entitlement status</h2>
+          <ul>
+            {enabled.map((feature) => (
+              <li key={feature.featureId}>
+                <code>{feature.featureId}</code>
+                <span className="doctor-home__pill doctor-home__pill--on">
+                  on · v{feature.entitlement.version}
+                </span>
+                <small>{feature.reason}</small>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      ) : null}
 
       {enabled.length === 0 ? (
         <p role="status">No features are enabled for this doctor.</p>
@@ -160,7 +157,7 @@ export function DoctorHome() {
         <div className="doctor-home__features">
           {enabled.map((feature) => (
             <FeatureMount
-              key={feature.featureId}
+              key={`${feature.featureId}:${feature.entitlement.version ?? 'off'}`}
               featureId={feature.featureId}
               config={feature.config}
               entitlement={feature.entitlement}
@@ -168,19 +165,6 @@ export function DoctorHome() {
           ))}
         </div>
       )}
-
-      {disabled.length > 0 ? (
-        <aside className="doctor-home__disabled-list">
-          <h2>Unavailable</h2>
-          <ul>
-            {disabled.map((feature) => (
-              <li key={feature.featureId}>
-                <code>{feature.featureId}</code> — {feature.reason}
-              </li>
-            ))}
-          </ul>
-        </aside>
-      ) : null}
     </div>
   );
 }
@@ -199,5 +183,5 @@ function describeCascade(
     return 'Disabled by entitlement cascade';
   }
 
-  return `Client ceiling on (max ${tenant.allowedVersionRange.max}) · effective v${entitlement.version}`;
+  return `Allowed versions: ${tenant.allowedVersions.join(', ')} · effective v${entitlement.version}`;
 }

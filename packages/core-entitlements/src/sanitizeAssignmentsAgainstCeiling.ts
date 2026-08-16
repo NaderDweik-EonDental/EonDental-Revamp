@@ -1,5 +1,5 @@
-import semver from 'semver';
 import type { FeatureId, TenantEntitlement } from './types.js';
+import { pickAllowedVersion } from './allowedVersions.js';
 
 export interface VersionAssignment {
   featureId: FeatureId;
@@ -11,9 +11,9 @@ export type SanitizeAssignmentsResult =
   | { ok: false; errors: string[] };
 
 /**
- * Enforce tenant ceiling on write (same rule the resolver applies on read).
+ * Enforce the tenant allowed-version set on write.
  * Assignments for disabled tenant features are dropped.
- * Versions above the ceiling are clamped down to the ceiling max.
+ * Versions not in the allowed set are clamped to the highest allowed version.
  */
 export function sanitizeAssignmentsAgainstCeiling(
   assignments: VersionAssignment[],
@@ -31,17 +31,13 @@ export function sanitizeAssignmentsAgainstCeiling(
       continue;
     }
 
-    if (!semver.valid(assignment.assignedVersion)) {
-      errors.push(
-        `${assignment.featureId}: invalid version ${assignment.assignedVersion}`,
-      );
+    const version = pickAllowedVersion(
+      assignment.assignedVersion,
+      tenant.allowedVersions,
+    );
+    if (!version) {
       continue;
     }
-
-    const ceiling = tenant.allowedVersionRange.max;
-    const version = semver.gt(assignment.assignedVersion, ceiling)
-      ? ceiling
-      : assignment.assignedVersion;
 
     next.push({
       featureId: assignment.featureId,

@@ -17,7 +17,7 @@ const client: ClientRecord = {
     {
       featureId: 'case-submission',
       enabled: true,
-      allowedVersionRange: { max: '2.1.0' },
+      allowedVersions: ['1.0.0', '2.1.0'],
     },
   ],
 };
@@ -40,7 +40,7 @@ describe('resolveDoctorFeatureEntitlement', () => {
         {
           featureId: 'case-submission',
           enabled: false,
-          allowedVersionRange: { max: '2.1.0' },
+          allowedVersions: ['1.0.0', '2.1.0'],
         },
       ],
     };
@@ -58,14 +58,14 @@ describe('resolveDoctorFeatureEntitlement', () => {
     });
   });
 
-  it('clamps an assignment above the tenant ceiling', () => {
+  it('clamps an assignment that is not in the allowed set', () => {
     const lowCeiling: ClientRecord = {
       ...client,
       entitlements: [
         {
           featureId: 'case-submission',
           enabled: true,
-          allowedVersionRange: { max: '1.0.0' },
+          allowedVersions: ['1.0.0'],
         },
       ],
     };
@@ -83,7 +83,7 @@ describe('resolveDoctorFeatureEntitlement', () => {
     });
   });
 
-  it('defaults an unassigned tenant doctor to the ceiling max', () => {
+  it('defaults an unassigned tenant doctor to the highest allowed version', () => {
     const unassigned: DoctorRecord = {
       ...tenantDoctor,
       assignments: [],

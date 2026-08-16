@@ -8,6 +8,7 @@ import {
 import type { SmileSimulationApi } from '../application/runSimulation.js';
 import {
   availableShadesFor,
+  hasShadeAndWhiteningControls,
   type SmileSimulationConfig,
   type ToothShade,
 } from '../domain/simulationRules.js';
@@ -45,6 +46,7 @@ export function SmileSimulationScreen(props: {
   } = useSmileSimulation(props);
 
   const shades = availableShadesFor(props.config);
+  const showShadeAndWhitening = hasShadeAndWhiteningControls(props.config);
   const patientId = useId();
   const photoInputRef = useRef<HTMLInputElement>(null);
 
@@ -151,38 +153,40 @@ export function SmileSimulationScreen(props: {
                 />
               </div>
 
-              <fieldset className="smile-sim__field smile-sim__shades">
-                <legend className="smile-sim__label">Target shade</legend>
-                <div
-                  className="smile-sim__shade-grid"
-                  role="radiogroup"
-                  aria-label="Target shade"
-                >
-                  {shades.map((shade) => {
-                    const selected = draft.targetShade === shade;
-                    return (
-                      <button
-                        key={shade}
-                        type="button"
-                        role="radio"
-                        aria-checked={selected}
-                        className={
-                          selected
-                            ? 'smile-sim__shade smile-sim__shade--selected'
-                            : 'smile-sim__shade'
-                        }
-                        style={{ '--shade': SHADE_SWATCH[shade] } as CSSProperties}
-                        onClick={() => setTargetShade(shade)}
-                      >
-                        <span className="smile-sim__shade-chip" aria-hidden="true" />
-                        <span className="smile-sim__shade-name">{shade}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </fieldset>
+              {showShadeAndWhitening ? (
+                <fieldset className="smile-sim__field smile-sim__shades">
+                  <legend className="smile-sim__label">Target shade</legend>
+                  <div
+                    className="smile-sim__shade-grid"
+                    role="radiogroup"
+                    aria-label="Target shade"
+                  >
+                    {shades.map((shade) => {
+                      const selected = draft.targetShade === shade;
+                      return (
+                        <button
+                          key={shade}
+                          type="button"
+                          role="radio"
+                          aria-checked={selected}
+                          className={
+                            selected
+                              ? 'smile-sim__shade smile-sim__shade--selected'
+                              : 'smile-sim__shade'
+                          }
+                          style={{ '--shade': SHADE_SWATCH[shade] } as CSSProperties}
+                          onClick={() => setTargetShade(shade)}
+                        >
+                          <span className="smile-sim__shade-chip" aria-hidden="true" />
+                          <span className="smile-sim__shade-name">{shade}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              ) : null}
 
-              {props.config.allowWhiteningPreview ? (
+              {showShadeAndWhitening ? (
                 <label className="smile-sim__toggle">
                   <input
                     type="checkbox"
@@ -206,6 +210,7 @@ export function SmileSimulationScreen(props: {
                 error={previewError}
                 targetShade={draft.targetShade}
                 includeWhitening={draft.includeWhiteningPreview}
+                showShadeAndWhitening={showShadeAndWhitening}
                 aiReady={aiReady}
               />
             </div>

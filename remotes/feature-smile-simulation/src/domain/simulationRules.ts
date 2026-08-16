@@ -24,6 +24,12 @@ export function availableShadesFor(
   return SHADE_ORDER.slice(0, Math.max(0, config.maxShadeOptions));
 }
 
+export function hasShadeAndWhiteningControls(
+  config: SmileSimulationConfig,
+): boolean {
+  return config.allowWhiteningPreview && config.maxShadeOptions > 0;
+}
+
 export function isValidSimulation(
   draft: SmileSimulationDraft,
   config: SmileSimulationConfig,
@@ -38,7 +44,10 @@ export function isValidSimulation(
   }
 
   const allowed = availableShadesFor(config);
-  if (!allowed.includes(draft.targetShade)) {
+  if (
+    hasShadeAndWhiteningControls(config) &&
+    !allowed.includes(draft.targetShade)
+  ) {
     errors.push(`targetShade ${draft.targetShade} is not in the allowed set`);
   }
 

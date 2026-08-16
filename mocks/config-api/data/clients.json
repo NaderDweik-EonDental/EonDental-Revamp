@@ -5,17 +5,17 @@
       {
         "featureId": "case-submission",
         "enabled": true,
-        "allowedVersionRange": { "max": "2.1.0" }
+        "allowedVersions": ["1.0.0", "2.1.0"]
       },
       {
         "featureId": "smile-simulation",
         "enabled": true,
-        "allowedVersionRange": { "max": "1.4.0" }
+        "allowedVersions": ["1.0.0", "1.4.0"]
       },
       {
         "featureId": "3d-viewer",
         "enabled": true,
-        "allowedVersionRange": { "max": "1.3.1" }
+        "allowedVersions": ["1.0.0", "1.3.1"]
       }
     ]
   }

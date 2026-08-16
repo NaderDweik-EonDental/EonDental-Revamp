@@ -54,4 +54,16 @@ describe('runSimulation', () => {
       },
     });
   });
+
+  it('runs without shade or whitening when those controls are off', async () => {
+    const api = fakeApi();
+    const result = await runSimulation(
+      validDraft,
+      { maxShadeOptions: 0, allowWhiteningPreview: false },
+      api,
+    );
+
+    expect(result.ok).toBe(true);
+    expect(api.run).toHaveBeenCalled();
+  });
 });

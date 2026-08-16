@@ -95,7 +95,7 @@ export const configApiHandlers = [
         clientId: client.clientId,
         featureId: entry.featureId,
         enabled: entry.enabled,
-        allowedVersionRange: entry.allowedVersionRange,
+        allowedVersions: entry.allowedVersions,
       }),
     );
 
@@ -114,11 +114,23 @@ export const configApiHandlers = [
     return HttpResponse.json(doctor);
   }),
 
-  http.get('/api/features/:featureId/config', ({ params }) => {
-    const config = store.featureConfigs[String(params.featureId)];
-    if (!config) {
+  http.get('/api/features/:featureId/config', ({ params, request }) => {
+    const byVersion = store.featureConfigs[String(params.featureId)];
+    if (!byVersion) {
       return HttpResponse.json(
         { message: 'Feature config not found' },
+        { status: 404 },
+      );
+    }
+    const version = new URL(request.url).searchParams.get('version');
+    const config = version ? byVersion[version] : undefined;
+    if (!config) {
+      return HttpResponse.json(
+        {
+          message: version
+            ? `No config for ${params.featureId} v${version}`
+            : 'version query is required',
+        },
         { status: 404 },
       );
     }

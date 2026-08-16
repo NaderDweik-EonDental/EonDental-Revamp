@@ -15,7 +15,7 @@ export interface DoctorRecord {
 export interface ClientEntitlementRecord {
   featureId: FeatureId;
   enabled: boolean;
-  allowedVersionRange: { min?: string; max: string };
+  allowedVersions: string[];
 }
 
 export interface ClientRecord {
@@ -44,5 +44,8 @@ export interface ConfigClient {
     userId: string,
     assignments: FeatureAssignment[],
   ): Promise<DoctorRecord>;
-  getFeatureConfig(featureId: FeatureId): Promise<Record<string, unknown>>;
+  getFeatureConfig(
+    featureId: FeatureId,
+    version: string,
+  ): Promise<Record<string, unknown>>;
 }

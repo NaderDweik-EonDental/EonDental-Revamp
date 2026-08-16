@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
+import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
 import type { CameraPreset } from '../domain/viewerRules.js';
 
 type TeethViewportProps = {
@@ -148,7 +149,15 @@ export function TeethViewport({
     if (!runtime) return;
 
     let cancelled = false;
-    const loader = new STLLoader();
+    const stlLoader = new STLLoader();
+    const plyLoader = new PLYLoader();
+
+    const parseGeometry = (file: File, buffer: ArrayBuffer) => {
+      if (file.name.toLowerCase().endsWith('.ply')) {
+        return plyLoader.parse(buffer);
+      }
+      return stlLoader.parse(buffer);
+    };
 
     const loadArch = async (
       file: File | null,
@@ -158,7 +167,7 @@ export function TeethViewport({
       if (!file) return null;
       const buffer = await file.arrayBuffer();
       if (cancelled) return null;
-      const geometry = loader.parse(buffer);
+      const geometry = parseGeometry(file, buffer);
       geometry.computeVertexNormals();
       const material = new THREE.MeshStandardMaterial({
         color,
@@ -223,7 +232,7 @@ export function TeethViewport({
         onStatsRef.current?.({ triangles: Math.round(triangles) });
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : 'Failed to parse STL file';
+          error instanceof Error ? error.message : 'Failed to parse mesh file';
         onErrorRef.current?.(message);
         onStatsRef.current?.({ triangles: 0 });
       }

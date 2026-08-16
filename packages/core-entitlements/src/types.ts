@@ -4,7 +4,8 @@ export interface TenantEntitlement {
   clientId: string;
   featureId: FeatureId;
   enabled: boolean;
-  allowedVersionRange: { min?: string; max: string };
+  /** Exact versions super-admin grants this client. Not a max range. */
+  allowedVersions: string[];
 }
 
 export interface UserEntitlement {

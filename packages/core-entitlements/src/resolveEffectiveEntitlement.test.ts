@@ -8,7 +8,7 @@ const tenant = (
   clientId: 'eon-dental',
   featureId: 'case-submission',
   enabled: true,
-  allowedVersionRange: { max: '2.1.0' },
+  allowedVersions: ['1.0.0', '2.1.0'],
   ...overrides,
 });
 
@@ -33,22 +33,22 @@ describe('resolveEffectiveEntitlement', () => {
     });
   });
 
-  it('clamps to the ceiling when a doctor is assigned above it', () => {
+  it('clamps to an allowed version when the assignment is not in the set', () => {
     const result = resolveEffectiveEntitlement(
-      tenant({ allowedVersionRange: { max: '2.0.0' } }),
+      tenant({ allowedVersions: ['1.0.0'] }),
       user({ assignedVersion: '2.1.0' }),
     );
 
     expect(result).toEqual({
       featureId: 'case-submission',
       enabled: true,
-      version: '2.0.0',
+      version: '1.0.0',
     });
   });
 
-  it('keeps the doctor version when assigned below the ceiling', () => {
+  it('keeps the doctor version when it is in the allowed set', () => {
     const result = resolveEffectiveEntitlement(
-      tenant({ allowedVersionRange: { max: '2.1.0' } }),
+      tenant({ allowedVersions: ['1.0.0', '2.1.0'] }),
       user({ assignedVersion: '1.0.0' }),
     );
 
@@ -59,9 +59,9 @@ describe('resolveEffectiveEntitlement', () => {
     });
   });
 
-  it('defaults to the ceiling max when a doctor has no assignment', () => {
+  it('defaults to the highest allowed version when a doctor has no assignment', () => {
     const result = resolveEffectiveEntitlement(
-      tenant({ allowedVersionRange: { max: '2.1.0' } }),
+      tenant({ allowedVersions: ['1.0.0', '2.1.0'] }),
       user({ assignedVersion: undefined }),
     );
 
@@ -69,6 +69,19 @@ describe('resolveEffectiveEntitlement', () => {
       featureId: 'case-submission',
       enabled: true,
       version: '2.1.0',
+    });
+  });
+
+  it('returns disabled when no versions are allowed', () => {
+    const result = resolveEffectiveEntitlement(
+      tenant({ allowedVersions: [] }),
+      user({ assignedVersion: '2.1.0' }),
+    );
+
+    expect(result).toEqual({
+      featureId: 'case-submission',
+      enabled: false,
+      version: null,
     });
   });
 });

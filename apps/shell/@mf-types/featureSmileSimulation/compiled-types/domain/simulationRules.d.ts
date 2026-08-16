@@ -16,5 +16,6 @@ export type SmileValidationResult = {
     errors: string[];
 };
 export declare function availableShadesFor(config: SmileSimulationConfig): ToothShade[];
+export declare function hasShadeAndWhiteningControls(config: SmileSimulationConfig): boolean;
 export declare function isValidSimulation(draft: SmileSimulationDraft, config: SmileSimulationConfig): SmileValidationResult;
 //# sourceMappingURL=simulationRules.d.ts.map

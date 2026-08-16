@@ -39,9 +39,6 @@ export function isValidViewerRequest(
       `format ${request.format} is not allowed (allowed: ${config.allowedFormats.join(', ')})`,
     );
   }
-  if (request.format !== 'stl') {
-    errors.push('only STL meshes can be rendered in the 3D viewport');
-  }
 
   if (errors.length > 0) {
     return { valid: false, errors };

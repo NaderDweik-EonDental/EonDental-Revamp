@@ -8,9 +8,12 @@ import type {
 import type { FeatureId } from '@eon/core-entitlements';
 import { useAuth } from '../../../app-shell/AuthProvider.js';
 import { useViewSwitcher } from '../../../view-switcher/ViewSwitcherContext.js';
+import { formatFeatureVersion } from '../../../feature-versions.js';
 import {
   assignableVersionsWithinCeiling,
   entitlementForFeature,
+  isFeatureOffered,
+  defaultAssignedVersion,
 } from '../assignableVersions.js';
 import './clientAdmin.css';
 
@@ -98,10 +101,10 @@ export function ClientAdminHome() {
       <header>
         <h1>Client admin</h1>
         <p className="client-admin__meta">
-          Managing <code>{client.clientId}</code>. Super-admin sets which
-          features are enabled (ceiling). You assign versions within that
-          ceiling. Unassigned doctors inherit the ceiling max version when the
-          feature is enabled.
+          Managing <code>{client.clientId}</code>. Super-admin turns features
+          on and checks which versions this client may use. You assign one of
+          those versions to each doctor. Unassigned doctors inherit the highest
+          allowed version.
         </p>
       </header>
 
@@ -109,22 +112,37 @@ export function ClientAdminHome() {
 
       <div className="client-admin__ceilings">
         <h2>Client ceiling (from super-admin)</h2>
-        <ul>
-          {catalog.map((entry) => {
-            const entitlement = entitlementForFeature(
-              client.entitlements,
-              entry.featureId,
-            );
-            return (
-              <li key={entry.featureId}>
-                <code>{entry.featureId}</code> —{' '}
-                {entitlement?.enabled
-                  ? `enabled · max ${entitlement.allowedVersionRange.max}`
-                  : 'disabled for this client (doctors cannot access)'}
-              </li>
-            );
-          })}
-        </ul>
+        {catalog.filter((entry) =>
+          isFeatureOffered(
+            entitlementForFeature(client.entitlements, entry.featureId),
+          ),
+        ).length === 0 ? (
+          <p className="client-admin__meta">
+            No features are enabled for this client.
+          </p>
+        ) : (
+          <ul>
+            {catalog.map((entry) => {
+              const entitlement = entitlementForFeature(
+                client.entitlements,
+                entry.featureId,
+              );
+              if (!isFeatureOffered(entitlement)) {
+                return null;
+              }
+              return (
+                <li key={entry.featureId}>
+                  <code>{entry.featureId}</code> —{' '}
+                  {entitlement.allowedVersions
+                    .map((version) =>
+                      formatFeatureVersion(entry.featureId, version),
+                    )
+                    .join(' · ')}
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
 
       {doctors.map((doctor) => (
@@ -161,7 +179,14 @@ function DoctorAssignmentCard({
     setDraft(doctor.assignments);
   }, [doctor.assignments]);
 
-  const featureIds = catalog.map((entry) => entry.featureId);
+  const featureIds = catalog
+    .map((entry) => entry.featureId)
+    .filter(
+      (featureId) =>
+        isFeatureOffered(
+          entitlementForFeature(client.entitlements, featureId),
+        ),
+    );
 
   function versionFor(featureId: FeatureId): string {
     return draft.find((a) => a.featureId === featureId)?.assignedVersion ?? '';
@@ -183,37 +208,44 @@ function DoctorAssignmentCard({
         <code>{doctor.userId}</code>
       </h2>
       <div className="client-admin__assignments">
-        {featureIds.map((featureId) => {
-          const entitlement = entitlementForFeature(
-            client.entitlements,
-            featureId,
-          );
-          const versions = assignableVersionsWithinCeiling(
-            catalog.find((c) => c.featureId === featureId)?.versions ?? [],
-            entitlement,
-          );
-          return (
-            <label key={featureId}>
-              {featureId}
-              <select
-                value={versionFor(featureId)}
-                disabled={versions.length === 0}
-                onChange={(e) => setVersion(featureId, e.target.value)}
-              >
-                <option value="">
-                  {entitlement?.enabled
-                    ? `— inherit ceiling (v${entitlement.allowedVersionRange.max}) —`
-                    : '— disabled by client ceiling —'}
-                </option>
-                {versions.map((version) => (
-                  <option key={version} value={version}>
-                    {version}
+        {featureIds.length === 0 ? (
+          <p className="client-admin__meta">
+            No features to assign — super-admin has not enabled any for this
+            client.
+          </p>
+        ) : (
+          featureIds.map((featureId) => {
+            const entitlement = entitlementForFeature(
+              client.entitlements,
+              featureId,
+            );
+            const versions = assignableVersionsWithinCeiling(
+              catalog.find((c) => c.featureId === featureId)?.versions ?? [],
+              entitlement,
+            );
+            const inheritVersion = defaultAssignedVersion(entitlement);
+            return (
+              <label key={featureId}>
+                {featureId}
+                <select
+                  value={versionFor(featureId)}
+                  onChange={(e) => setVersion(featureId, e.target.value)}
+                >
+                  <option value="">
+                    {inheritVersion
+                      ? `— inherit (${formatFeatureVersion(featureId, inheritVersion)}) —`
+                      : '— inherit —'}
                   </option>
-                ))}
-              </select>
-            </label>
-          );
-        })}
+                  {versions.map((version) => (
+                    <option key={version} value={version}>
+                      {formatFeatureVersion(featureId, version)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            );
+          })
+        )}
       </div>
       <button
         type="button"

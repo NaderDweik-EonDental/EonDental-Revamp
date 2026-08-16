@@ -34,13 +34,13 @@ export function resolveDoctorFeatureEntitlement(
         clientId: client.clientId,
         featureId: record.featureId,
         enabled: record.enabled,
-        allowedVersionRange: record.allowedVersionRange,
+        allowedVersions: record.allowedVersions,
       }
     : {
         clientId: client.clientId,
         featureId,
         enabled: false,
-        allowedVersionRange: { max: '0.0.0' },
+        allowedVersions: [],
       };
 
   return resolveEffectiveEntitlement(tenant, user);

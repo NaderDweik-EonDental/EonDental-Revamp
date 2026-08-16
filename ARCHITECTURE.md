@@ -31,9 +31,9 @@ Four ingredients, each a standard pattern in its own right:
 - **Micro-frontends via Module Federation** — feature modules (case submission, smile
   simulation, 3D viewer) are built and deployed independently of the shell and of each other.
 - **Multi-tenant** — a "client" in our domain language is a tenant. Tenant-scoping is everywhere.
-- **Hierarchical entitlement resolution** — super admin sets a ceiling per client; the client
-  assigns to its doctors within that ceiling; the effective access a doctor gets is always the
-  narrower of the two.
+- **Hierarchical entitlement resolution** — super admin enables features per client and checks
+  which static versions that client may use; the client admin assigns one of those versions to
+  each doctor; a doctor can never receive a version the client was not granted.
 - **Single shell** — one host application. It contains three role-based views (super admin,
   client admin, doctor), switched by a view switcher, not three separate deployed apps. This can
   be split into separate host apps later without touching the remotes — the views are already
@@ -74,9 +74,10 @@ belongs to exactly one client. Doctors can be reassigned between clients — tha
 
 **The cascade:**
 
-- The super admin owns the global feature catalog (which features exist, which versions of each
-  exist) and sets, per client, an **entitlement ceiling**: which features are enabled for that
-  client, and the range/max version they're allowed to offer.
+- The super admin owns the global feature catalog (which features exist, and the two static
+  versions of each) and sets, per client, which features are enabled and **which of those
+  versions the client may use**. Super-admin does not create new versions. A dropdown max
+  ceiling is not enough — only checked versions are granted.
 - The client admin, within that ceiling, assigns an actual version to each of its doctors.
 - **Effective access for a doctor is always the narrower of the two limits above it.** A client
   can never grant a doctor more than its own ceiling allows, even by mistake — the resolver
@@ -91,7 +92,7 @@ export interface TenantEntitlement {
   clientId: string;
   featureId: FeatureId;
   enabled: boolean;
-  allowedVersionRange: { min?: string; max: string }; // the ceiling, set by super admin
+  allowedVersions: string[]; // exact versions super admin grants this client
 }
 
 export interface UserEntitlement {
@@ -125,17 +126,25 @@ export function resolveEffectiveEntitlement(
     return { featureId: user.featureId, enabled: false, version: null };
   }
 
-  const requested = user.assignedVersion ?? tenant.allowedVersionRange.max;
-  const ceiling = tenant.allowedVersionRange.max;
-  const effective = semver.gt(requested, ceiling) ? ceiling : requested;
+  const allowed = tenant.allowedVersions;
+  const requested = user.assignedVersion;
+  const version =
+    requested && allowed.includes(requested)
+      ? requested
+      : allowed.sort(semver.compare).at(-1) ?? null;
 
-  return { featureId: user.featureId, enabled: true, version: effective };
+  if (!version) {
+    return { featureId: user.featureId, enabled: false, version: null };
+  }
+
+  return { featureId: user.featureId, enabled: true, version };
 }
 ```
 
 **Required tests before this is considered done** (write these first, not after):
-tenant disabled → disabled result; doctor assigned above ceiling → clamped to ceiling; doctor
-assigned below ceiling → their own version; doctor with no assignment → defaults to ceiling max.
+tenant disabled → disabled result; doctor assigned a version not in the allowed set → clamped
+to the highest allowed version; doctor assigned an allowed version → that version; doctor with
+no assignment → defaults to the highest allowed version.
 
 ---
 
@@ -369,10 +378,20 @@ means changing `core-config-client`'s implementation, nothing upstream of it.
 // mocks/config-api/data/feature-catalog.json
 [
   { "featureId": "case-submission", "versions": ["1.0.0", "2.1.0"] },
-  { "featureId": "smile-simulation", "versions": ["1.4.0"] },
-  { "featureId": "3d-viewer", "versions": ["1.0.0"] }
+  { "featureId": "smile-simulation", "versions": ["1.0.0", "1.4.0"] },
+  { "featureId": "3d-viewer", "versions": ["1.0.0", "1.3.1"] }
 ]
 ```
+
+Each feature ships **exactly two static versions**. Super-admin does not add versions; they only
+turn a feature on for a client and **check which of those versions the client may use**. Client-admin
+assigns one of the checked versions to each doctor. The mock API returns a
+**per-version config** (`GET /api/features/:featureId/config?version=`), so switching version
+actually changes the feature UI:
+
+- **case-submission** `1.0.0` no packages / `2.1.0` with packages
+- **smile-simulation** `1.0.0` no shade or whitening / `1.4.0` target shade + whitening preview
+- **3d-viewer** `1.0.0` STL only / `1.3.1` STL and PLY
 
 ```json
 // mocks/config-api/data/clients.json
@@ -380,8 +399,8 @@ means changing `core-config-client`'s implementation, nothing upstream of it.
   {
     "clientId": "eon-dental",
     "entitlements": [
-      { "featureId": "case-submission", "enabled": true, "allowedVersionRange": { "max": "2.1.0" } },
-      { "featureId": "3d-viewer", "enabled": false, "allowedVersionRange": { "max": "1.0.0" } }
+      { "featureId": "case-submission", "enabled": true, "allowedVersions": ["2.1.0"] },
+      { "featureId": "3d-viewer", "enabled": false, "allowedVersions": [] }
     ]
   }
 ]

@@ -129,13 +129,16 @@ export class MockConfigClient implements ConfigClient {
     return readJson<DoctorRecord>(response);
   }
 
-  async getFeatureConfig(featureId: FeatureId): Promise<Record<string, unknown>> {
+  async getFeatureConfig(
+    featureId: FeatureId,
+    version: string,
+  ): Promise<Record<string, unknown>> {
     const response = await this.fetchImpl(
-      `${this.baseUrl}/features/${encodeURIComponent(featureId)}/config`,
+      `${this.baseUrl}/features/${encodeURIComponent(featureId)}/config?version=${encodeURIComponent(version)}`,
     );
     if (!response.ok) {
       throw new Error(
-        `Feature config not found for ${featureId}: ${response.status}`,
+        `Feature config not found for ${featureId} v${version}: ${response.status}`,
       );
     }
     return (await response.json()) as Record<string, unknown>;

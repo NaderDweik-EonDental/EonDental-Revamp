@@ -6,6 +6,7 @@ import type {
 } from '@eon/core-config-client';
 import type { FeatureId } from '@eon/core-entitlements';
 import { useAuth } from '../../../app-shell/AuthProvider.js';
+import { formatFeatureVersion } from '../../../feature-versions.js';
 import './superAdmin.css';
 
 export function SuperAdminHome() {
@@ -16,7 +17,6 @@ export function SuperAdminHome() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [newClientId, setNewClientId] = useState('');
-  const [newVersion, setNewVersion] = useState<Record<string, string>>({});
 
   async function reload() {
     const [nextCatalog, nextClients] = await Promise.all([
@@ -70,9 +70,10 @@ export function SuperAdminHome() {
       <header>
         <h1>Super admin</h1>
         <p className="super-admin__meta">
-          Global catalog and per-client entitlement ceilings. Enabling a feature
-          for a client turns it on for that client&apos;s doctors (they inherit
-          the ceiling max unless client-admin assigns a lower version).
+          Features ship two static versions. You do not create versions — you
+          set, per client, which features are on and which of those versions
+          the client may actually use. Client-admin can only assign the
+          versions you check.
         </p>
       </header>
 
@@ -80,53 +81,23 @@ export function SuperAdminHome() {
 
       <section className="super-admin__card">
         <h2>Feature catalog</h2>
+        <p className="super-admin__meta">
+          Read-only. Super-admin grants each client a subset of these versions
+          with checkboxes.
+        </p>
         {catalog.map((entry) => (
           <div key={entry.featureId} className="super-admin__catalog-row">
             <div>
               <strong>
                 <code>{entry.featureId}</code>
               </strong>
-              <p>{entry.versions.join(', ')}</p>
-            </div>
-            <div className="super-admin__inline">
-              <input
-                placeholder="new version"
-                value={newVersion[entry.featureId] ?? ''}
-                onChange={(e) =>
-                  setNewVersion((current) => ({
-                    ...current,
-                    [entry.featureId]: e.target.value,
-                  }))
-                }
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  void (async () => {
-                    const version = (newVersion[entry.featureId] ?? '').trim();
-                    if (!version) return;
-                    const next = catalog.map((item) =>
-                      item.featureId === entry.featureId
-                        ? {
-                            ...item,
-                            versions: item.versions.includes(version)
-                              ? item.versions
-                              : [...item.versions, version],
-                          }
-                        : item,
-                    );
-                    await configClient.putFeatureCatalog(next);
-                    await reload();
-                    setNewVersion((current) => ({
-                      ...current,
-                      [entry.featureId]: '',
-                    }));
-                    setMessage(`Added ${version} to ${entry.featureId}`);
-                  })();
-                }}
-              >
-                Add version
-              </button>
+              <ul className="super-admin__version-list">
+                {entry.versions.map((version) => (
+                  <li key={version}>
+                    {formatFeatureVersion(entry.featureId, version)}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         ))}
@@ -150,9 +121,7 @@ export function SuperAdminHome() {
                   (entry) => ({
                     featureId: entry.featureId,
                     enabled: false,
-                    allowedVersionRange: {
-                      max: entry.versions[entry.versions.length - 1] ?? '0.0.0',
-                    },
+                    allowedVersions: [],
                   }),
                 );
                 await configClient.createClient({ clientId, entitlements });
@@ -174,7 +143,7 @@ export function SuperAdminHome() {
             onSave={async (clientId, entitlements) => {
               await configClient.putClientEntitlements(clientId, entitlements);
               await reload();
-              setMessage(`Updated ceilings for ${clientId}`);
+              setMessage(`Updated available versions for ${clientId}`);
             }}
           />
         ))}
@@ -218,7 +187,7 @@ function ClientCeilingEditor({
         {
           featureId,
           enabled: false,
-          allowedVersionRange: { max: '0.0.0' },
+          allowedVersions: [],
           ...patch,
         },
       ];
@@ -239,26 +208,47 @@ function ClientCeilingEditor({
                 <input
                   type="checkbox"
                   checked={entitlement?.enabled ?? false}
-                  onChange={(e) =>
-                    update(entry.featureId, { enabled: e.target.checked })
-                  }
+                  onChange={(e) => {
+                    const enabled = e.target.checked;
+                    update(entry.featureId, {
+                      enabled,
+                      allowedVersions: enabled
+                        ? (entitlement?.allowedVersions.length
+                            ? entitlement.allowedVersions
+                            : [...entry.versions])
+                        : [],
+                    });
+                  }}
                 />
                 {entry.featureId}
               </label>
-              <select
-                value={entitlement?.allowedVersionRange.max ?? ''}
-                onChange={(e) =>
-                  update(entry.featureId, {
-                    allowedVersionRange: { max: e.target.value },
-                  })
-                }
-              >
-                {entry.versions.map((version) => (
-                  <option key={version} value={version}>
-                    max {version}
-                  </option>
-                ))}
-              </select>
+              {entitlement?.enabled ? (
+                <div className="super-admin__version-checks">
+                  {entry.versions.map((version) => {
+                    const checked =
+                      entitlement.allowedVersions.includes(version);
+                    return (
+                      <label
+                        key={version}
+                        className="super-admin__check super-admin__check--version"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => {
+                            const current = entitlement.allowedVersions;
+                            const allowedVersions = checked
+                              ? current.filter((item) => item !== version)
+                              : [...current, version];
+                            update(entry.featureId, { allowedVersions });
+                          }}
+                        />
+                        {formatFeatureVersion(entry.featureId, version)}
+                      </label>
+                    );
+                  })}
+                </div>
+              ) : null}
             </div>
           );
         })}
@@ -277,7 +267,7 @@ function ClientCeilingEditor({
           })();
         }}
       >
-        {saving ? 'Saving…' : 'Save ceilings'}
+        {saving ? 'Saving…' : 'Save available versions'}
       </button>
     </article>
   );
