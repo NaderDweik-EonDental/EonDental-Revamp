@@ -33,6 +33,9 @@ export interface ViewSwitcherContextValue {
   session: AuthSession;
   /** Client the client-admin session manages (mock). */
   managedClientId: string;
+  /** Increments when super-admin persists entitlements so other views refetch. */
+  configRevision: number;
+  bumpConfigRevision: () => void;
   setView: (view: ShellView) => void;
 }
 
@@ -50,9 +53,14 @@ export function ViewSwitcherProvider({
   initialView = 'doctor',
 }: ViewSwitcherProviderProps) {
   const [view, setViewState] = useState<ShellView>(initialView);
+  const [configRevision, setConfigRevision] = useState(0);
 
   const setView = useCallback((next: ShellView) => {
     setViewState(next);
+  }, []);
+
+  const bumpConfigRevision = useCallback(() => {
+    setConfigRevision((current) => current + 1);
   }, []);
 
   const value = useMemo<ViewSwitcherContextValue>(
@@ -60,9 +68,11 @@ export function ViewSwitcherProvider({
       view,
       session: VIEW_SESSIONS[view],
       managedClientId: 'eon-dental',
+      configRevision,
+      bumpConfigRevision,
       setView,
     }),
-    [setView, view],
+    [bumpConfigRevision, configRevision, setView, view],
   );
 
   return (

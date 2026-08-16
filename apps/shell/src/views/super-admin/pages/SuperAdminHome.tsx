@@ -7,10 +7,12 @@ import type {
 import type { FeatureId } from '@eon/core-entitlements';
 import { useAuth } from '../../../app-shell/AuthProvider.js';
 import { formatFeatureVersion } from '../../../feature-versions.js';
+import { useViewSwitcher } from '../../../view-switcher/ViewSwitcherContext.js';
 import './superAdmin.css';
 
 export function SuperAdminHome() {
   const { configClient } = useAuth();
+  const { bumpConfigRevision } = useViewSwitcher();
   const [catalog, setCatalog] = useState<FeatureCatalogEntry[]>([]);
   const [clients, setClients] = useState<ClientRecord[]>([]);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -72,8 +74,8 @@ export function SuperAdminHome() {
         <p className="super-admin__meta">
           Features ship two static versions. You do not create versions — you
           set, per client, which features are on and which of those versions
-          the client may actually use. Client-admin can only assign the
-          versions you check.
+          the client may actually use. Changes save immediately. Client-admin
+          only sees the versions you check.
         </p>
       </header>
 
@@ -142,6 +144,7 @@ export function SuperAdminHome() {
             catalog={catalog}
             onSave={async (clientId, entitlements) => {
               await configClient.putClientEntitlements(clientId, entitlements);
+              bumpConfigRevision();
               await reload();
               setMessage(`Updated available versions for ${clientId}`);
             }}
@@ -177,21 +180,31 @@ function ClientCeilingEditor({
   ) {
     setDraft((current) => {
       const existing = current.find((e) => e.featureId === featureId);
-      if (existing) {
-        return current.map((e) =>
-          e.featureId === featureId ? { ...e, ...patch } : e,
-        );
-      }
-      return [
-        ...current,
-        {
-          featureId,
-          enabled: false,
-          allowedVersions: [],
-          ...patch,
-        },
-      ];
+      const next = existing
+        ? current.map((e) =>
+            e.featureId === featureId ? { ...e, ...patch } : e,
+          )
+        : [
+            ...current,
+            {
+              featureId,
+              enabled: false,
+              allowedVersions: [],
+              ...patch,
+            },
+          ];
+      void persist(next);
+      return next;
     });
+  }
+
+  async function persist(entitlements: ClientEntitlementRecord[]) {
+    setSaving(true);
+    try {
+      await onSave(client.clientId, entitlements);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -253,22 +266,11 @@ function ClientCeilingEditor({
           );
         })}
       </div>
-      <button
-        type="button"
-        disabled={saving}
-        onClick={() => {
-          void (async () => {
-            setSaving(true);
-            try {
-              await onSave(client.clientId, draft);
-            } finally {
-              setSaving(false);
-            }
-          })();
-        }}
-      >
-        {saving ? 'Saving…' : 'Save available versions'}
-      </button>
+      {saving ? (
+        <p className="super-admin__meta">Saving…</p>
+      ) : (
+        <p className="super-admin__meta">Saved for this client immediately.</p>
+      )}
     </article>
   );
 }

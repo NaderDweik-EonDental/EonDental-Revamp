@@ -5,6 +5,7 @@ import type {
 } from '@eon/core-entitlements';
 import type { ClientRecord } from '@eon/core-config-client';
 import { useAuth } from '../../../app-shell/AuthProvider.js';
+import { useViewSwitcher } from '../../../view-switcher/ViewSwitcherContext.js';
 import { FeatureMount, isMountableFeature } from '../FeatureMount.js';
 import { resolveDoctorFeatureEntitlement } from '../resolveDoctorFeatureEntitlement.js';
 import './doctorHome.css';
@@ -29,6 +30,7 @@ interface DoctorHomeState {
  */
 export function DoctorHome() {
   const { session, configClient } = useAuth();
+  const { configRevision } = useViewSwitcher();
   const [state, setState] = useState<DoctorHomeState>({
     status: 'loading',
     features: [],
@@ -107,7 +109,7 @@ export function DoctorHome() {
     return () => {
       cancelled = true;
     };
-  }, [configClient, session.userId]);
+  }, [configClient, configRevision, session.userId]);
 
   if (state.status === 'loading') {
     return <p role="status">Loading doctor workspace…</p>;

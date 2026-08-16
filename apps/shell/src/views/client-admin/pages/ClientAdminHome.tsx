@@ -19,7 +19,7 @@ import './clientAdmin.css';
 
 export function ClientAdminHome() {
   const { configClient } = useAuth();
-  const { managedClientId } = useViewSwitcher();
+  const { managedClientId, configRevision } = useViewSwitcher();
   const [client, setClient] = useState<ClientRecord | null>(null);
   const [doctors, setDoctors] = useState<DoctorRecord[]>([]);
   const [catalog, setCatalog] = useState<FeatureCatalogEntry[]>([]);
@@ -56,7 +56,7 @@ export function ClientAdminHome() {
     return () => {
       cancelled = true;
     };
-  }, [configClient, managedClientId]);
+  }, [configClient, configRevision, managedClientId]);
 
   async function reload() {
     const [nextClient, nextDoctors, nextCatalog] = await Promise.all([

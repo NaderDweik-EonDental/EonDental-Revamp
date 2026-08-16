@@ -100,6 +100,7 @@ for (const remote of remotes) {
 const shellEnv = {
   VITE_BASE_PATH: basePath,
   VITE_ENABLE_MSW: 'true',
+  VITE_ENABLE_VIEW_SWITCHER: 'true',
 };
 for (const remote of remotes) {
   shellEnv[remote.envKey] = `${siteUrl}remotes/${remote.name}/mf-manifest.json`;
