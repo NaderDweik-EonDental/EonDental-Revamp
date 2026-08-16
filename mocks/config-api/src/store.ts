@@ -92,7 +92,10 @@ export type FeatureConfigByVersion = Record<
   Record<string, Record<string, unknown>>
 >;
 
-/** In-memory mutable store — MSW handlers read/write this so admin edits persist for the session. */
+const STORAGE_KEY = 'eon-config-api-v1';
+const CHANNEL_NAME = 'eon-config-api';
+
+/** In-memory mutable store — MSW handlers read/write this so admin edits persist. */
 export const store = {
   clients: clone(clientsSeed) as ClientRecord[],
   doctors: clone(doctorsSeed) as DoctorRecord[],
@@ -116,3 +119,100 @@ export const store = {
     },
   } as FeatureConfigByVersion,
 };
+
+interface PersistedStore {
+  clients: ClientRecord[];
+  doctors: DoctorRecord[];
+  featureCatalog: FeatureCatalogEntry[];
+}
+
+function canUseBrowserStorage(): boolean {
+  return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+}
+
+function snapshot(): PersistedStore {
+  return {
+    clients: store.clients,
+    doctors: store.doctors,
+    featureCatalog: store.featureCatalog,
+  };
+}
+
+function applySnapshot(data: PersistedStore): void {
+  store.clients = clone(data.clients);
+  store.doctors = clone(data.doctors);
+  store.featureCatalog = clone(data.featureCatalog);
+}
+
+function readPersisted(): PersistedStore | null {
+  if (!canUseBrowserStorage()) {
+    return null;
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return null;
+    }
+    const data = JSON.parse(raw) as PersistedStore;
+    if (!Array.isArray(data.clients) || !Array.isArray(data.doctors)) {
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function hydrateFromStorage(): void {
+  const data = readPersisted();
+  if (data) {
+    applySnapshot(data);
+  }
+}
+
+hydrateFromStorage();
+
+/** Write current entitlements/assignments and notify other tabs. */
+export function persistStore(): void {
+  if (!canUseBrowserStorage()) {
+    return;
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot()));
+  if (typeof BroadcastChannel !== 'undefined') {
+    const channel = new BroadcastChannel(CHANNEL_NAME);
+    channel.postMessage({ type: 'updated' });
+    channel.close();
+  }
+}
+
+/** Hydrate from localStorage then run `onChange` when another tab writes. */
+export function subscribeStore(onChange: () => void): () => void {
+  if (!canUseBrowserStorage()) {
+    return () => undefined;
+  }
+
+  hydrateFromStorage();
+
+  const onStorage = (event: StorageEvent) => {
+    if (event.key !== STORAGE_KEY) {
+      return;
+    }
+    hydrateFromStorage();
+    onChange();
+  };
+  window.addEventListener('storage', onStorage);
+
+  let channel: BroadcastChannel | null = null;
+  if (typeof BroadcastChannel !== 'undefined') {
+    channel = new BroadcastChannel(CHANNEL_NAME);
+    channel.onmessage = () => {
+      hydrateFromStorage();
+      onChange();
+    };
+  }
+
+  return () => {
+    window.removeEventListener('storage', onStorage);
+    channel?.close();
+  };
+}

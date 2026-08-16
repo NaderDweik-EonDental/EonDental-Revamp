@@ -5,6 +5,7 @@ import {
   type TenantEntitlement,
 } from '@eon/core-entitlements';
 import {
+  persistStore,
   store,
   type ClientEntitlementRecord,
   type ClientRecord,
@@ -20,6 +21,7 @@ export const configApiHandlers = [
   http.put('/api/feature-catalog', async ({ request }) => {
     const body = (await request.json()) as FeatureCatalogEntry[];
     store.featureCatalog = body;
+    persistStore();
     return HttpResponse.json(store.featureCatalog);
   }),
 
@@ -44,6 +46,7 @@ export const configApiHandlers = [
       );
     }
     store.clients.push(body);
+    persistStore();
     return HttpResponse.json(body, { status: 201 });
   }),
 
@@ -54,6 +57,7 @@ export const configApiHandlers = [
     }
     const entitlements = (await request.json()) as ClientEntitlementRecord[];
     client.entitlements = entitlements;
+    persistStore();
     return HttpResponse.json(client);
   }),
 
@@ -111,6 +115,7 @@ export const configApiHandlers = [
     }
 
     doctor.assignments = sanitized.assignments;
+    persistStore();
     return HttpResponse.json(doctor);
   }),
 

@@ -2,10 +2,12 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
+import { subscribeStore } from '@eon/mocks-config-api';
 import type { AuthRole, AuthSession } from '../app-shell/authTypes.js';
 
 export type ShellView = AuthRole;
@@ -48,11 +50,27 @@ export interface ViewSwitcherProviderProps {
   initialView?: ShellView;
 }
 
+function viewFromLocation(): ShellView {
+  if (typeof window === 'undefined') {
+    return 'doctor';
+  }
+  const path = window.location.pathname;
+  if (path.includes('client-admin')) {
+    return 'client-admin';
+  }
+  if (path.includes('super-admin')) {
+    return 'super-admin';
+  }
+  return 'doctor';
+}
+
 export function ViewSwitcherProvider({
   children,
-  initialView = 'doctor',
+  initialView,
 }: ViewSwitcherProviderProps) {
-  const [view, setViewState] = useState<ShellView>(initialView);
+  const [view, setViewState] = useState<ShellView>(
+    initialView ?? viewFromLocation(),
+  );
   const [configRevision, setConfigRevision] = useState(0);
 
   const setView = useCallback((next: ShellView) => {
@@ -62,6 +80,8 @@ export function ViewSwitcherProvider({
   const bumpConfigRevision = useCallback(() => {
     setConfigRevision((current) => current + 1);
   }, []);
+
+  useEffect(() => subscribeStore(bumpConfigRevision), [bumpConfigRevision]);
 
   const value = useMemo<ViewSwitcherContextValue>(
     () => ({
