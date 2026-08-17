@@ -6,7 +6,30 @@
     "assignments": [
       { "featureId": "case-submission", "assignedVersion": "2.1.0" },
       { "featureId": "smile-simulation", "assignedVersion": "1.4.0" },
-      { "featureId": "3d-viewer", "assignedVersion": "1.3.1" }
+      { "featureId": "3d-viewer", "assignedVersion": "1.3.1" },
+      { "featureId": "treatment-plan", "assignedVersion": "1.1.0" }
+    ]
+  },
+  {
+    "userId": "doc_456",
+    "clientId": "eon-dental",
+    "role": "doctor",
+    "assignments": [
+      { "featureId": "case-submission", "assignedVersion": "2.1.0" },
+      { "featureId": "smile-simulation", "assignedVersion": "1.4.0" },
+      { "featureId": "3d-viewer", "assignedVersion": "1.3.1" },
+      { "featureId": "treatment-plan", "assignedVersion": null }
+    ]
+  },
+  {
+    "userId": "doc_789",
+    "clientId": "eon-dental",
+    "role": "doctor",
+    "assignments": [
+      { "featureId": "case-submission", "assignedVersion": "2.1.0" },
+      { "featureId": "smile-simulation", "assignedVersion": "1.4.0" },
+      { "featureId": "3d-viewer", "assignedVersion": "1.3.1" },
+      { "featureId": "treatment-plan", "assignedVersion": null }
     ]
   }
 ]

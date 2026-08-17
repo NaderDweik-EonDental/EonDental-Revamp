@@ -18,3 +18,10 @@ declare module 'feature3dViewer/FeatureRoot' {
   const FeatureRoot: FeatureComponent;
   export default FeatureRoot;
 }
+
+declare module 'featureTreatmentPlan/FeatureRoot' {
+  import type { FeatureComponent } from '@eon/core-sdk';
+
+  const FeatureRoot: FeatureComponent;
+  export default FeatureRoot;
+}

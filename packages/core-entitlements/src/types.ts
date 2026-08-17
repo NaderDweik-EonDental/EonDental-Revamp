@@ -1,4 +1,8 @@
-export type FeatureId = 'case-submission' | 'smile-simulation' | '3d-viewer';
+export type FeatureId =
+  | 'case-submission'
+  | 'smile-simulation'
+  | '3d-viewer'
+  | 'treatment-plan';
 
 export interface TenantEntitlement {
   clientId: string;

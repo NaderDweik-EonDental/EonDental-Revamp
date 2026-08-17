@@ -17,6 +17,10 @@ export const STATIC_FEATURE_VERSIONS: Record<
     { version: '1.0.0', label: 'STL only' },
     { version: '1.3.1', label: 'STL and PLY' },
   ],
+  'treatment-plan': [
+    { version: '1.0.0', label: 'Stages only' },
+    { version: '1.1.0', label: 'Stages + visit estimate' },
+  ],
 };
 
 export function formatFeatureVersion(

@@ -19,6 +19,7 @@ const remoteLoaders: Record<FeatureId, () => Promise<RemoteModule>> = {
   'case-submission': () => import('featureCaseSubmission/FeatureRoot'),
   'smile-simulation': () => import('featureSmileSimulation/FeatureRoot'),
   '3d-viewer': () => import('feature3dViewer/FeatureRoot'),
+  'treatment-plan': () => import('featureTreatmentPlan/FeatureRoot'),
 };
 
 export function isMountableFeature(featureId: string): featureId is FeatureId {

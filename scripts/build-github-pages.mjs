@@ -46,6 +46,13 @@ const remotes = [
     base: `${basePath}remotes/3d-viewer/`,
     envKey: 'VITE_3D_VIEWER_REMOTE',
   },
+  {
+    name: 'treatment-plan',
+    package: '@eon/feature-treatment-plan',
+    dist: join(root, 'remotes/feature-treatment-plan/dist'),
+    base: `${basePath}remotes/treatment-plan/`,
+    envKey: 'VITE_TREATMENT_PLAN_REMOTE',
+  },
 ];
 
 const pagesDist = join(root, 'pages-dist');

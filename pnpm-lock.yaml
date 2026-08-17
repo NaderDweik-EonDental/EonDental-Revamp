@@ -257,6 +257,46 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@26.1.2)(msw@2.15.0(@types/node@26.1.2)(typescript@5.9.3))(yaml@2.9.0)
 
+  remotes/feature-treatment-plan:
+    dependencies:
+      '@eon/core-entitlements':
+        specifier: workspace:*
+        version: link:../../packages/core-entitlements
+      '@eon/core-sdk':
+        specifier: workspace:*
+        version: link:../../packages/core-sdk
+      ajv:
+        specifier: ^8.17.1
+        version: 8.20.0
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: 19.1.0
+        version: 19.1.0(react@19.1.0)
+    devDependencies:
+      '@module-federation/vite':
+        specifier: ^1.7.1
+        version: 1.20.2(typescript@5.9.3)(vite@6.4.3(@types/node@26.1.2)(yaml@2.9.0))
+      '@types/react':
+        specifier: ^19.1.8
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19.1.6
+        version: 19.2.4(@types/react@19.2.18)
+      '@vitejs/plugin-react':
+        specifier: ^4.7.0
+        version: 4.7.0(vite@6.4.3(@types/node@26.1.2)(yaml@2.9.0))
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vite:
+        specifier: ^6.3.5
+        version: 6.4.3(@types/node@26.1.2)(yaml@2.9.0)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@26.1.2)(msw@2.15.0(@types/node@26.1.2)(typescript@5.9.3))(yaml@2.9.0)
+
 packages:
 
   '@babel/code-frame@7.29.7':

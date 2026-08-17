@@ -4,11 +4,12 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "dev:urls": "node scripts/print-dev-urls.mjs",
-    "dev:noisy": "pnpm --parallel --filter @eon/shell --filter @eon/feature-case-submission --filter @eon/feature-smile-simulation --filter @eon/feature-3d-viewer dev",
+    "dev:noisy": "pnpm --parallel --filter @eon/shell --filter @eon/feature-case-submission --filter @eon/feature-smile-simulation --filter @eon/feature-3d-viewer --filter @eon/feature-treatment-plan dev",
     "dev:shell": "pnpm --filter @eon/shell dev",
     "dev:case-submission": "pnpm --filter @eon/feature-case-submission dev",
     "dev:smile-simulation": "pnpm --filter @eon/feature-smile-simulation dev",
     "dev:3d-viewer": "pnpm --filter @eon/feature-3d-viewer dev",
+    "dev:treatment-plan": "pnpm --filter @eon/feature-treatment-plan dev",
     "build": "nx run-many -t build",
     "build:pages": "node scripts/build-github-pages.mjs",
     "test": "nx run-many -t test",

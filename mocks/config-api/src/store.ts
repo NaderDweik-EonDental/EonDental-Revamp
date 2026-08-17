@@ -117,6 +117,10 @@ export const store = {
       '1.0.0': { allowedFormats: ['stl'], defaultCamera: 'front' },
       '1.3.1': { allowedFormats: ['stl', 'ply'], defaultCamera: 'front' },
     },
+    'treatment-plan': {
+      '1.0.0': { maxStages: 3, allowVisitEstimate: false },
+      '1.1.0': { maxStages: 5, allowVisitEstimate: true },
+    },
   } as FeatureConfigByVersion,
 };
 
@@ -144,6 +148,44 @@ function applySnapshot(data: PersistedStore): void {
   store.featureCatalog = clone(data.featureCatalog);
 }
 
+/** Demo localStorage can be older than seed. Fill in newly added features. */
+function mergeMissingFromSeed(): void {
+  const catalogHave = new Set(store.featureCatalog.map((e) => e.featureId));
+  for (const entry of clone(featureCatalogSeed) as FeatureCatalogEntry[]) {
+    if (!catalogHave.has(entry.featureId)) {
+      store.featureCatalog.push(entry);
+    }
+  }
+
+  const seedClients = clone(clientsSeed) as ClientRecord[];
+  store.clients = store.clients.map((client) => {
+    const seed = seedClients.find((c) => c.clientId === client.clientId);
+    if (!seed) {
+      return client;
+    }
+    const have = new Set(client.entitlements.map((e) => e.featureId));
+    const missing = seed.entitlements.filter((e) => !have.has(e.featureId));
+    if (missing.length === 0) {
+      return client;
+    }
+    return { ...client, entitlements: [...client.entitlements, ...missing] };
+  });
+
+  const seedDoctors = clone(doctorsSeed) as DoctorRecord[];
+  store.doctors = store.doctors.map((doctor) => {
+    const seed = seedDoctors.find((d) => d.userId === doctor.userId);
+    if (!seed) {
+      return doctor;
+    }
+    const have = new Set(doctor.assignments.map((a) => a.featureId));
+    const missing = seed.assignments.filter((a) => !have.has(a.featureId));
+    if (missing.length === 0) {
+      return doctor;
+    }
+    return { ...doctor, assignments: [...doctor.assignments, ...missing] };
+  });
+}
+
 function readPersisted(): PersistedStore | null {
   if (!canUseBrowserStorage()) {
     return null;
@@ -168,6 +210,7 @@ function hydrateFromStorage(): void {
   if (data) {
     applySnapshot(data);
   }
+  mergeMissingFromSeed();
 }
 
 hydrateFromStorage();

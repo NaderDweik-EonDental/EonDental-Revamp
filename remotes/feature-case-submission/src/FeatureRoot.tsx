@@ -1,7 +1,7 @@
 import type { FeatureProps } from '@eon/core-sdk';
-import { CaseSubmissionScreen } from './presentation/CaseSubmissionScreen.js';
-import { createInMemoryCaseApi } from './infrastructure/caseApiClient.js';
-import { validateCaseConfig } from './infrastructure/validateCaseConfig.js';
+import { CaseSubmissionScreen } from './4-presentation/CaseSubmissionScreen.js';
+import { createInMemoryCaseApi } from './3-infrastructure/caseApiClient.js';
+import { validateCaseConfig } from './3-infrastructure/validateCaseConfig.js';
 
 export type CaseSubmissionConfig = {
   requireXray: boolean;

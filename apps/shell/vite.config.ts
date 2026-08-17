@@ -12,6 +12,9 @@ const smileSimulationRemote =
   'http://localhost:5002/mf-manifest.json';
 const viewerRemote =
   process.env.VITE_3D_VIEWER_REMOTE ?? 'http://localhost:5003/mf-manifest.json';
+const treatmentPlanRemote =
+  process.env.VITE_TREATMENT_PLAN_REMOTE ??
+  'http://localhost:5004/mf-manifest.json';
 
 const shared = {
   react: { singleton: true, requiredVersion: '^19.0.0' },
@@ -39,6 +42,11 @@ export default defineConfig({
           type: 'module',
           name: 'feature3dViewer',
           entry: viewerRemote,
+        },
+        featureTreatmentPlan: {
+          type: 'module',
+          name: 'featureTreatmentPlan',
+          entry: treatmentPlanRemote,
         },
       },
       shared,

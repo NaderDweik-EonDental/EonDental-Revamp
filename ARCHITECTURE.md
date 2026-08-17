@@ -29,7 +29,7 @@ resolution, served from a single shell.**
 Four ingredients, each a standard pattern in its own right:
 
 - **Micro-frontends via Module Federation** — feature modules (case submission, smile
-  simulation, 3D viewer) are built and deployed independently of the shell and of each other.
+  simulation, 3D viewer, treatment plan) are built and deployed independently of the shell and of each other.
 - **Multi-tenant** — a "client" in our domain language is a tenant. Tenant-scoping is everywhere.
 - **Hierarchical entitlement resolution** — super admin enables features per client and checks
   which static versions that client may use; the client admin assigns one of those versions to
@@ -43,10 +43,10 @@ Four ingredients, each a standard pattern in its own right:
 
 ## 2. Non-negotiable principles
 
-- **Business logic never imports a UI framework.** `domain/` and `application/` layers inside
+- **Business logic never imports a UI framework.** `1-domain/` and `2-application/` layers inside
   every feature are plain TypeScript. No `react`, no `react-dom`, no CSS. If you find yourself
-  writing `import { useState }` in `domain/` or `application/`, stop — that logic belongs in
-  `presentation/` or in a hook that wraps the use-case, not inside the use-case itself.
+  writing `import { useState }` in `1-domain/` or `2-application/`, stop — that logic belongs in
+  `4-presentation/` or in a hook that wraps the use-case, not inside the use-case itself.
 - **Features never import each other.** `feature-case-submission` must never import anything from
   `feature-smile-simulation` or `feature-3d-viewer`, directly or transitively. If two features
   need to share something, that something belongs in a `packages/` package, not in one feature
@@ -86,7 +86,11 @@ belongs to exactly one client. Doctors can be reassigned between clients — tha
 ```ts
 // packages/core-entitlements/src/types.ts
 
-export type FeatureId = 'case-submission' | 'smile-simulation' | '3d-viewer';
+export type FeatureId =
+  | 'case-submission'
+  | 'smile-simulation'
+  | '3d-viewer'
+  | 'treatment-plan';
 
 export interface TenantEntitlement {
   clientId: string;
@@ -186,15 +190,17 @@ eon-frontend/
 ├── remotes/                           # independently built & deployed federation apps
 │   ├── feature-case-submission/
 │   │   ├── src/
-│   │   │   ├── domain/                # pure rules, zero framework imports
-│   │   │   ├── application/           # use-cases orchestrating domain + infra
-│   │   │   ├── infrastructure/        # API adapters (mock today, real API later)
-│   │   │   ├── presentation/          # React components, the only layer that imports React
+│   │   │   ├── 1-domain/              # pure rules, zero framework imports
+│   │   │   ├── 2-application/         # use-cases orchestrating domain + ports
+│   │   │   ├── 3-infrastructure/      # API adapters (mock today, real API later)
+│   │   │   ├── 4-presentation/        # React components, the only layer that imports React
 │   │   │   ├── manifest.json
 │   │   │   └── FeatureRoot.tsx        # the exposed entry point, implements FeatureComponent
 │   │   └── vite.config.ts             # remote federation config
-│   ├── feature-smile-simulation/      # same internal shape
-│   └── feature-3d-viewer/             # same internal shape
+│   ├── feature-smile-simulation/      # same internal shape (1-domain / 2-application / 3-infrastructure / 4-presentation)
+│   ├── feature-3d-viewer/             # same internal shape
+│   └── feature-treatment-plan/        # same federation contract; FSD internally (1-app / 2-pages / 3-widgets / 4-features / 5-entities / 6-shared)
+
 │
 ├── mocks/
 │   └── config-api/
@@ -265,8 +271,8 @@ shell and by the admin views, never imported by code:
 ```
 
 **Rule:** any config object passed into a feature is validated against `configSchema` at the
-boundary (in the feature's own `infrastructure/`, using something like `ajv`) before it reaches
-`presentation/`. Never trust the config object blindly — a bad or stale client config is the most
+boundary (in the feature's own `3-infrastructure/`, using something like `ajv`) before it reaches
+`4-presentation/`. Never trust the config object blindly — a bad or stale client config is the most
 likely source of a silent, hard-to-diagnose bug in this system, so fail loud and early instead.
 
 ---
@@ -275,23 +281,23 @@ likely source of a silent, hard-to-diagnose bug in this system, so fail loud and
 
 ```
 remotes/feature-case-submission/src/
-├── domain/
+├── 1-domain/
 │   └── caseRules.ts        # e.g. isValidCase(), requiredAttachmentsFor()
-├── application/
+├── 2-application/
 │   ├── submitCase.ts       # orchestrates domain rules + infrastructure calls
 │   └── submitCase.test.ts  # tested against a fake infrastructure, no network, no DOM
-├── infrastructure/
+├── 3-infrastructure/
 │   └── caseApiClient.ts    # talks to mocks/config-api today; swap base URL later, nothing else
-├── presentation/
+├── 4-presentation/
 │   ├── CaseSubmissionScreen.tsx   # renders state, calls application/ via a hook
 │   └── useCaseSubmission.ts       # the only place React and application/ meet
 ├── manifest.json
 └── FeatureRoot.tsx          # implements FeatureComponent, the federation entry point
 ```
 
-The dependency direction is strict and one-way: `presentation` → `application` → `domain`, with
-`infrastructure` called only from `application`. `domain` depends on nothing. This is what makes
-the business logic genuinely portable — `domain/caseRules.ts` and `application/submitCase.ts`
+The dependency direction is strict and one-way: `4-presentation` → `2-application` → `1-domain`, with
+`3-infrastructure` implementing application ports. `1-domain` depends on nothing. This is what makes
+the business logic genuinely portable — `1-domain/caseRules.ts` and `2-application/submitCase.ts`
 would work identically if this were rebuilt in a different framework a decade from now.
 
 ---
@@ -379,7 +385,8 @@ means changing `core-config-client`'s implementation, nothing upstream of it.
 [
   { "featureId": "case-submission", "versions": ["1.0.0", "2.1.0"] },
   { "featureId": "smile-simulation", "versions": ["1.0.0", "1.4.0"] },
-  { "featureId": "3d-viewer", "versions": ["1.0.0", "1.3.1"] }
+  { "featureId": "3d-viewer", "versions": ["1.0.0", "1.3.1"] },
+  { "featureId": "treatment-plan", "versions": ["1.0.0", "1.1.0"] }
 ]
 ```
 
@@ -451,13 +458,13 @@ screens, and vice versa, even though they ship in the same build.
 - **No feature imports another feature.** No `packages/` package reaches into `remotes/`. Enforce
   this with an ESLint import boundary rule, not just convention — convention gets violated the
   first time someone's in a hurry.
-- **Write the test for a use-case before wiring it into a UI.** `application/` functions are
+- **Write the test for a use-case before wiring it into a UI.** `2-application/` functions are
   pure-ish and cheap to test in isolation; do that first, not after the screen "looks done."
 - **No speculative abstraction.** Build `case-submission` completely and for real before pulling
   anything shared into `core-sdk` or `core-entitlements`. A second feature confirming the pattern
   is the trigger to generalize — not before.
 - **Validate config at the boundary, always.** Every feature validates its incoming `config`
-  against its own `configSchema` in `infrastructure/`, and fails loud (a clear error state, not a
+  against its own `configSchema` in `3-infrastructure/`, and fails loud (a clear error state, not a
   silent `undefined`) if it doesn't match.
 - **Small, scoped commits.** A single PR touching `shell/`, `core-entitlements/`, and
   `feature-case-submission/` simultaneously is a sign scope crept — split it into three.

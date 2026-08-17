@@ -28,6 +28,12 @@ const apps = [
     url: 'http://localhost:5003/',
     ready: /Local:\s+http:\/\/localhost:5003/,
   },
+  {
+    name: 'Treatment plan',
+    filter: '@eon/feature-treatment-plan',
+    url: 'http://localhost:5004/',
+    ready: /Local:\s+http:\/\/localhost:5004/,
+  },
 ];
 
 const logDir = join(process.cwd(), '.logs');

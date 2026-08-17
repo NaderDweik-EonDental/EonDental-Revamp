@@ -1,7 +1,7 @@
 import type { FeatureProps } from '@eon/core-sdk';
-import { SmileSimulationScreen } from './presentation/SmileSimulationScreen.js';
-import { createInMemorySmileApi } from './infrastructure/smileApiClient.js';
-import { validateSmileConfig } from './infrastructure/validateSmileConfig.js';
+import { SmileSimulationScreen } from './4-presentation/SmileSimulationScreen.js';
+import { createInMemorySmileApi } from './3-infrastructure/smileApiClient.js';
+import { validateSmileConfig } from './3-infrastructure/validateSmileConfig.js';
 
 export type SmileSimulationFeatureConfig = {
   maxShadeOptions: number;

@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/app/*": ["src/1-app/*"],
+      "@/pages/*": ["src/2-pages/*"],
+      "@/widgets/*": ["src/3-widgets/*"],
+      "@/features/*": ["src/4-features/*"],
+      "@/entities/*": ["src/5-entities/*"],
+      "@/shared/*": ["src/6-shared/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
+}

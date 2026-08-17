@@ -5,6 +5,7 @@ const apps = [
   { name: 'Case submission', url: 'http://localhost:5001/' },
   { name: 'Smile simulation', url: 'http://localhost:5002/' },
   { name: '3D viewer', url: 'http://localhost:5003/' },
+  { name: 'Treatment plan', url: 'http://localhost:5004/' },
 ];
 
 console.log('');

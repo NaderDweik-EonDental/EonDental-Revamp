@@ -1,0 +1,19 @@
+{
+  "featureId": "treatment-plan",
+  "displayName": "Treatment plan",
+  "owner": "clinical-team",
+  "allowedRoles": ["doctor"],
+  "versions": [
+    { "version": "1.0.0", "status": "active" },
+    { "version": "1.1.0", "status": "active" }
+  ],
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "maxStages": { "type": "number" },
+      "allowVisitEstimate": { "type": "boolean" }
+    },
+    "required": ["maxStages", "allowVisitEstimate"],
+    "additionalProperties": false
+  }
+}

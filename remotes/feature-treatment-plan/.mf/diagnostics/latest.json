@@ -1,0 +1,10 @@
+{
+  "latestErrorEvent": {
+    "code": "TYPE-001",
+    "message": "Failed to generate type declaration. Execute the below cmd to reproduce and fix the error. #TYPE-001\nargs: {\"cmd\":\"/var/home/nader/.nvm/versions/node/v22.23.0/bin/node /var/home/nader/Music/poc/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc --project /var/home/nader/Music/poc/remotes/feature-treatment-plan/node_modules/.federation/tsconfig.ae5a394ab6ce9d0667dc967601d19985.json\"}\nView the docs to see how to solve: https://module-federation.io/guide/troubleshooting/type#type-001",
+    "args": {
+      "cmd": "/var/home/nader/.nvm/versions/node/v22.23.0/bin/node /var/home/nader/Music/poc/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc --project /var/home/nader/Music/poc/remotes/feature-treatment-plan/node_modules/.federation/tsconfig.ae5a394ab6ce9d0667dc967601d19985.json"
+    },
+    "timestamp": 1786963610704
+  }
+}

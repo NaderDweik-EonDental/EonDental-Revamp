@@ -1,7 +1,7 @@
 import { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import FeatureRoot from './FeatureRoot.js';
-import { samplePackageCatalog } from './domain/packageCatalog.js';
+import { samplePackageCatalog } from './1-domain/packageCatalog.js';
 
 type DemoVersion = '1.0.0' | '2.1.0';
 

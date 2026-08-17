@@ -1,8 +1,8 @@
 import type { FeatureProps } from '@eon/core-sdk';
-import { ViewerScreen } from './presentation/ViewerScreen.js';
-import { createInMemoryViewerApi } from './infrastructure/viewerApiClient.js';
-import { validateViewerConfig } from './infrastructure/validateViewerConfig.js';
-import type { CameraPreset } from './domain/viewerRules.js';
+import { ViewerScreen } from './4-presentation/ViewerScreen.js';
+import { createInMemoryViewerApi } from './3-infrastructure/viewerApiClient.js';
+import { validateViewerConfig } from './3-infrastructure/validateViewerConfig.js';
+import type { CameraPreset } from './1-domain/viewerRules.js';
 
 export type ViewerFeatureConfig = {
   allowedFormats: string[];
