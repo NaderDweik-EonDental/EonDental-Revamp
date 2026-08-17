@@ -1,4 +1,4 @@
-import naderTestBeforeUrl from '../assets/naderTestBefore.png?url';
+import naderTestBeforeUrl from '../assets/naderTestBefore.png';
 
 /** Demo smile photo shipped with the remote. */
 export async function loadDefaultSmilePhoto(): Promise<File> {

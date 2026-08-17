@@ -8,31 +8,31 @@ const apps = [
     name: 'Shell',
     filter: '@eon/shell',
     url: 'http://localhost:5000/',
-    ready: /Local:\s+http:\/\/localhost:5000/,
+    ready: /localhost:5000/,
   },
   {
     name: 'Case submission',
     filter: '@eon/feature-case-submission',
     url: 'http://localhost:5001/',
-    ready: /Local:\s+http:\/\/localhost:5001/,
+    ready: /localhost:5001/,
   },
   {
     name: 'Smile simulation',
     filter: '@eon/feature-smile-simulation',
     url: 'http://localhost:5002/',
-    ready: /Local:\s+http:\/\/localhost:5002/,
+    ready: /localhost:5002/,
   },
   {
     name: '3D viewer',
     filter: '@eon/feature-3d-viewer',
     url: 'http://localhost:5003/',
-    ready: /Local:\s+http:\/\/localhost:5003/,
+    ready: /localhost:5003/,
   },
   {
     name: 'Treatment plan',
     filter: '@eon/feature-treatment-plan',
     url: 'http://localhost:5004/',
-    ready: /Local:\s+http:\/\/localhost:5004/,
+    ready: /localhost:5004/,
   },
 ];
 

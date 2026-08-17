@@ -1,5 +1,5 @@
-import lowerArchUrl from '../assets/LowerArch.stl?url';
-import upperArchUrl from '../assets/UpperArch.stl?url';
+import lowerArchUrl from '../assets/LowerArch.stl';
+import upperArchUrl from '../assets/UpperArch.stl';
 
 async function urlToFile(
   url: string,

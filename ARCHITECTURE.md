@@ -177,7 +177,7 @@ eon-frontend/
 │       │   │       ├── FeatureMount.tsx        # mounts federated remotes, see §7
 │       │   │       └── pages/
 │       │   └── main.tsx
-│       ├── vite.config.ts             # host federation config
+│       ├── rspack.config.ts           # host federation config
 │       └── package.json
 │
 ├── packages/                          # shared libraries — imported normally, not federated
@@ -195,7 +195,7 @@ eon-frontend/
 │   │   │   ├── 3-infrastructure/      # API adapters (mock today, real API later)
 │   │   │   ├── 4-presentation/        # React components, the only layer that imports React
 │   │   │   └── FeatureRoot.tsx        # the exposed entry point, implements FeatureComponent
-│   │   └── vite.config.ts             # remote federation config
+│   │   └── rspack.config.ts           # remote federation config
 │   ├── feature-smile-simulation/      # same internal shape (1-domain / 2-application / 3-infrastructure / 4-presentation)
 │   ├── feature-3d-viewer/             # same internal shape
 │   └── feature-treatment-plan/        # same federation contract; FSD internally (1-app / 2-pages / 3-widgets / 4-features / 5-entities / 6-shared)
@@ -276,43 +276,31 @@ would work identically if this were rebuilt in a different framework a decade fr
 
 ## 7. Module Federation setup
 
-**Tooling:** use **`@module-federation/vite`** (the official module-federation.io Vite plugin),
-not the older `@originjs/vite-plugin-federation`. Follow the **manifest-first** production
-pattern it recommends: each remote publishes an `mf-manifest.json` at build time; the host loads
-exposed modules through the plugin's runtime rather than a hardcoded URL. This gets you the
-version-pinning-per-client behavior almost for free — the shell can decide which manifest URL to
-load per user, based on the resolved entitlement version.
-
-**Shared dependencies:** `react` and `react-dom` must be declared as **singletons** with an
-identical required version in the host and in every remote. A drifted version here is the single
-most common cause of a micro-frontend bug (duplicate React copies → broken hooks, `Invalid hook
-call` errors that only show up once a component is federated). Keep `react`/`react-dom` version
-ranges byte-identical across every `package.json` in `apps/` and `remotes/`, and verify at
-runtime — during development — that only one copy of React is actually loaded.
+**Tooling:** use **Rspack** with **`@module-federation/enhanced`** (Module Federation 2.0).
+Follow the **manifest-first** production pattern: each remote publishes an `mf-manifest.json`
+at build time; the host loads exposed modules through that catalog rather than a hardcoded
+chunk URL. Shared `react` / `react-dom` must be **singletons** with an identical
+`requiredVersion` in the host and every remote.
 
 ```ts
-// remotes/feature-case-submission/vite.config.ts (shape, not final)
-import { defineConfig } from 'vite';
-import { federation } from '@module-federation/vite';
+// remotes/feature-case-submission/rspack.config.ts (shape)
+import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 
-export default defineConfig({
-  plugins: [
-    federation({
-      name: 'featureCaseSubmission',
-      filename: 'remoteEntry.js',
-      exposes: { './FeatureRoot': './src/FeatureRoot.tsx' },
-      shared: {
-        react: { singleton: true, requiredVersion: '^19.0.0' },
-        'react-dom': { singleton: true, requiredVersion: '^19.0.0' },
-      },
-    }),
-  ],
-  build: { target: 'esnext' },
+new ModuleFederationPlugin({
+  name: 'featureCaseSubmission',
+  filename: 'remoteEntry.js',
+  manifest: true,
+  exposes: { './FeatureRoot': './src/FeatureRoot.tsx' },
+  shared: {
+    react: { singleton: true, requiredVersion: '^19.0.0' },
+    'react-dom': { singleton: true, requiredVersion: '^19.0.0' },
+  },
 });
 ```
 
-The host (`apps/shell/vite.config.ts`) declares `remotes` pointing at each manifest URL (localhost
+The host (`apps/shell/rspack.config.ts`) declares `remotes` pointing at each manifest URL (localhost
 during dev, a real CDN/host URL in each deploy environment) with the same `shared` block.
+The host marks React as `eager` so the first paint does not wait on an async share.
 
 **Consuming a remote in the doctor view:**
 

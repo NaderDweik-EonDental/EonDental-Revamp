@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -p tsconfig.json --noEmit && vite build",
-    "preview": "vite preview",
+    "dev": "NODE_ENV=development rspack serve",
+    "build": "tsc -p tsconfig.json --noEmit && NODE_ENV=production rspack build",
+    "preview": "NODE_ENV=production rspack serve",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
@@ -22,14 +22,16 @@
     "semver": "^7.7.2"
   },
   "devDependencies": {
-    "@module-federation/vite": "^1.7.1",
+    "@module-federation/enhanced": "^0.21.6",
+    "@rspack/cli": "^1.5.2",
+    "@rspack/core": "^1.5.2",
+    "@rspack/plugin-react-refresh": "^1.5.2",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@types/semver": "^7.7.0",
-    "@vitejs/plugin-react": "^4.7.0",
     "msw": "^2.10.4",
+    "react-refresh": "^0.17.0",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5",
     "vitest": "^3.2.4"
   },
   "msw": {
