@@ -9,7 +9,7 @@ export default createFederationApp({
   name: 'featureTreatmentPlan',
   port: 5004,
   entry: './src/dev-entry.ts',
-  htmlTemplate: './index.html',
+  htmlTemplate: './index.html', // chnage
   exposes: {
     './FeatureRoot': './src/FeatureRoot.tsx',
   },
