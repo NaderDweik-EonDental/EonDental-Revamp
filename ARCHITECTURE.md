@@ -401,20 +401,11 @@ nothing in `apps/shell` or any `remotes/*` changes.
 
 ## 9. The shell: view switcher
 
-The dropdown that flips between super-admin / client-admin / doctor views is a **development
-convenience for now**, not a production "view as" feature. Gate it explicitly. It lists **every
-doctor and client** from the mock config API (not three hardcoded personas) so adding rows to
-`doctors.json` / `clients.json` — or creating a client in super-admin — shows up in the menu.
-
-```tsx
-// apps/shell/src/view-switcher/ViewSwitcherDropdown.tsx
-if (import.meta.env.VITE_ENABLE_VIEW_SWITCHER !== 'true') return null;
-```
-
-```tsx
-// apps/shell/src/view-switcher/ViewSwitcherDropdown.tsx
-if (import.meta.env.VITE_ENABLE_VIEW_SWITCHER !== 'true') return null;
-```
+The header **View as** dropdown flips between super-admin / client-admin / doctor views. It is a
+**development convenience**, not a production "view as" feature. It is on by default (this POC
+needs it to demo tenancy). Set `VITE_ENABLE_VIEW_SWITCHER=false` to hide it. It lists **every
+doctor and client** from the mock config API so adding rows to `doctors.json` / `clients.json` —
+or creating a client in super-admin — shows up in the menu.
 
 If this later becomes a real feature (a super admin genuinely switching into a client's view to
 help them), that's a different, more serious thing — it needs a persistent "you are viewing as

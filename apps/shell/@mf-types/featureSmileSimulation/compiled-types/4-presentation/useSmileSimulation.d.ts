@@ -8,8 +8,6 @@ export declare function useSmileSimulation(args: {
     sourcePhoto: File | null;
     afterImageUrl: string | null;
     previewError: string | null;
-    aiModelUsed: string | null;
-    aiReady: boolean;
     setPatientId: (patientId: string) => void;
     setSourcePhoto: (file: File | null) => void;
     setSourcePhotoName: (sourcePhotoName: string) => void;

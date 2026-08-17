@@ -16,7 +16,7 @@ type SwitcherValue =
  * See ARCHITECTURE.md §9.
  */
 export function ViewSwitcherDropdown() {
-  if (import.meta.env.VITE_ENABLE_VIEW_SWITCHER !== 'true') {
+  if (import.meta.env.VITE_ENABLE_VIEW_SWITCHER === 'false') {
     return null;
   }
 

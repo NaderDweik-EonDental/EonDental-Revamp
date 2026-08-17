@@ -1,8 +1,5 @@
 import type { FeatureProps } from '@eon/core-sdk';
-export type CaseSubmissionConfig = {
-    requireXray: boolean;
-    maxAttachments: number;
-};
-declare function FeatureRoot({ config, entitlement, }: FeatureProps<CaseSubmissionConfig>): import("react").JSX.Element;
+import type { CaseConfig } from './1-domain/caseRules.js';
+declare function FeatureRoot({ config, entitlement }: FeatureProps<CaseConfig>): import("react").JSX.Element;
 export default FeatureRoot;
 //# sourceMappingURL=FeatureRoot.d.ts.map
