@@ -51,17 +51,6 @@ export class MockConfigClient implements ConfigClient {
     return data ?? [];
   }
 
-  async putFeatureCatalog(
-    catalog: FeatureCatalogEntry[],
-  ): Promise<FeatureCatalogEntry[]> {
-    const response = await this.fetchImpl(`${this.baseUrl}/feature-catalog`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(catalog),
-    });
-    return readJson<FeatureCatalogEntry[]>(response);
-  }
-
   async listClients(): Promise<ClientRecord[]> {
     const response = await this.fetchImpl(`${this.baseUrl}/clients`);
     return readJson<ClientRecord[]>(response);
@@ -112,6 +101,15 @@ export class MockConfigClient implements ConfigClient {
       `${this.baseUrl}/doctors/${encodeURIComponent(userId)}`,
     );
     return readJsonOrNull<DoctorRecord>(response);
+  }
+
+  async createDoctor(doctor: DoctorRecord): Promise<DoctorRecord> {
+    const response = await this.fetchImpl(`${this.baseUrl}/doctors`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(doctor),
+    });
+    return readJson<DoctorRecord>(response);
   }
 
   async putDoctorAssignments(

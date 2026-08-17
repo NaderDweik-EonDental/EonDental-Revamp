@@ -17,7 +17,6 @@ type SmilePhotoCompareProps = {
   targetShade: ToothShade;
   includeWhitening: boolean;
   showShadeAndWhitening?: boolean;
-  aiReady: boolean;
 };
 
 const SLIDER_MIN = 8;
@@ -31,7 +30,6 @@ export function SmilePhotoCompare({
   targetShade,
   includeWhitening,
   showShadeAndWhitening = true,
-  aiReady,
 }: SmilePhotoCompareProps) {
   const [beforeUrl, setBeforeUrl] = useState<string | null>(null);
   const [slider, setSlider] = useState(50);
@@ -87,8 +85,7 @@ export function SmilePhotoCompare({
     return (
       <div className="smile-sim__compare smile-sim__compare--empty">
         <p>
-          Upload a smile photo, then run simulation. Hugging Face will generate
-          a realistic after preview with corrected teeth.
+          Upload a smile photo, then run simulation to preview before and after.
         </p>
       </div>
     );
@@ -100,17 +97,16 @@ export function SmilePhotoCompare({
     <div className="smile-sim__compare">
       <div className="smile-sim__compare-head">
         <div>
-          <p className="smile-sim__compare-title">Before / After AI preview</p>
+          <p className="smile-sim__compare-title">Before / After preview</p>
           <p className="smile-sim__compare-sub">
             {showShadeAndWhitening
               ? `Target ${targetShade}${includeWhitening ? ' · whitening on' : ''}`
               : 'Alignment preview'}
-            {aiReady ? ' · Hugging Face' : ' · HF token missing'}
           </p>
         </div>
         {processing ? (
           <span className="smile-sim__compare-badge">
-            Generating smile with Hugging Face…
+            Generating preview…
           </span>
         ) : showCompare ? (
           <span className="smile-sim__compare-badge smile-sim__compare-badge--ok">
@@ -174,7 +170,7 @@ export function SmilePhotoCompare({
               <img
                 className="smile-sim__slider-after"
                 src={afterImageUrl!}
-                alt="After AI smile simulation"
+                alt="After smile simulation"
                 draggable={false}
               />
               <div className="smile-sim__slider-handle" aria-hidden="true" />

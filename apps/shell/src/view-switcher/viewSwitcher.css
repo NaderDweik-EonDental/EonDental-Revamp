@@ -12,6 +12,7 @@
 
 .view-switcher select {
   font: inherit;
+  max-width: 16rem;
   padding: 0.25rem 0.45rem;
   border: 1px solid var(--shell-line, #d7dee6);
   border-radius: 0.3rem;

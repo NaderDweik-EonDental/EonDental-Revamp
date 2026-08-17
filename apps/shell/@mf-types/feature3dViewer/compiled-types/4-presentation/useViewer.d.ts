@@ -20,3 +20,4 @@ export declare function useViewer(args: {
     setMeshReady: import("react").Dispatch<import("react").SetStateAction<boolean>>;
     load: () => Promise<LoadModelResult>;
 };
+//# sourceMappingURL=useViewer.d.ts.map

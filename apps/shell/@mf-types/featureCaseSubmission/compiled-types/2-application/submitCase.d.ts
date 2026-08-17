@@ -15,3 +15,4 @@ export type SubmitCaseResult = {
     errors: string[];
 };
 export declare function submitCase(draft: CaseDraft, config: CaseConfig, api: CaseApi): Promise<SubmitCaseResult>;
+//# sourceMappingURL=submitCase.d.ts.map

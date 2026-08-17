@@ -3,3 +3,4 @@ export declare function loadDefaultArchFiles(): Promise<{
     upper: File;
     lower: File;
 }>;
+//# sourceMappingURL=defaultArchFiles.d.ts.map

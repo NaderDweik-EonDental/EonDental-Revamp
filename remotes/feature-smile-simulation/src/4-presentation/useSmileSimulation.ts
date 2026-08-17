@@ -9,10 +9,6 @@ import type {
   SmileSimulationDraft,
   ToothShade,
 } from '../1-domain/simulationRules.js';
-import {
-  generateSmileWithHuggingFace,
-  isHuggingFaceConfigured,
-} from '../3-infrastructure/huggingfaceSmileClient.js';
 import { loadDefaultSmilePhoto } from './defaultSmilePhoto.js';
 
 export function useSmileSimulation(args: {
@@ -28,12 +24,21 @@ export function useSmileSimulation(args: {
   const [sourcePhoto, setSourcePhoto] = useState<File | null>(null);
   const [afterImageUrl, setAfterImageUrl] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
-  const [aiModelUsed, setAiModelUsed] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
   const [lastResult, setLastResult] = useState<RunSimulationResult | null>(
     null,
   );
   const defaultsStarted = useRef(false);
+  const afterUrlRef = useRef<string | null>(null);
+
+  function replaceAfterUrl(next: string | null) {
+    if (afterUrlRef.current) {
+      URL.revokeObjectURL(afterUrlRef.current);
+      afterUrlRef.current = null;
+    }
+    afterUrlRef.current = next;
+    setAfterImageUrl(next);
+  }
 
   useEffect(() => {
     if (defaultsStarted.current) return;
@@ -64,6 +69,9 @@ export function useSmileSimulation(args: {
     void applyDefaultPhoto();
     return () => {
       cancelled = true;
+      if (afterUrlRef.current) {
+        URL.revokeObjectURL(afterUrlRef.current);
+      }
     };
   }, []);
 
@@ -72,16 +80,13 @@ export function useSmileSimulation(args: {
     sourcePhoto,
     afterImageUrl,
     previewError,
-    aiModelUsed,
-    aiReady: isHuggingFaceConfigured(),
     setPatientId: (patientId: string) =>
       setDraft((c) => ({ ...c, patientId })),
     setSourcePhoto: (file: File | null) => {
       setSourcePhoto(file);
       setDraft((c) => ({ ...c, sourcePhotoName: file?.name ?? '' }));
-      setAfterImageUrl(null);
+      replaceAfterUrl(null);
       setPreviewError(null);
-      setAiModelUsed(null);
     },
     setSourcePhotoName: (sourcePhotoName: string) =>
       setDraft((c) => ({ ...c, sourcePhotoName })),
@@ -99,39 +104,19 @@ export function useSmileSimulation(args: {
         setLastResult(result);
 
         if (!result.ok) {
-          setAfterImageUrl(null);
-          setAiModelUsed(null);
+          replaceAfterUrl(null);
           return result;
         }
 
         if (!sourcePhoto) {
           setPreviewError(
-            'Upload a smile photo before running the AI simulation.',
+            'Upload a smile photo before running the simulation.',
           );
-          setAfterImageUrl(null);
-          setAiModelUsed(null);
+          replaceAfterUrl(null);
           return result;
         }
 
-        try {
-          const generated = await generateSmileWithHuggingFace({
-            photo: sourcePhoto,
-            targetShade: draft.targetShade,
-            includeWhitening: draft.includeWhiteningPreview,
-            patientId: draft.patientId,
-          });
-          setAfterImageUrl(generated.afterImageUrl);
-          setAiModelUsed(generated.model);
-        } catch (error) {
-          setAfterImageUrl(null);
-          setAiModelUsed(null);
-          setPreviewError(
-            error instanceof Error
-              ? error.message
-              : 'Hugging Face smile simulation failed',
-          );
-        }
-
+        replaceAfterUrl(URL.createObjectURL(sourcePhoto));
         return result;
       } finally {
         setRunning(false);

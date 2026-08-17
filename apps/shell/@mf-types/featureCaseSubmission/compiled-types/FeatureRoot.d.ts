@@ -5,3 +5,4 @@ export type CaseSubmissionConfig = {
 };
 declare function FeatureRoot({ config, entitlement, }: FeatureProps<CaseSubmissionConfig>): import("react").JSX.Element;
 export default FeatureRoot;
+//# sourceMappingURL=FeatureRoot.d.ts.map

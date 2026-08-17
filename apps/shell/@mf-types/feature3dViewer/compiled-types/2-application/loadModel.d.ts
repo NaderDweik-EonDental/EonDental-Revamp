@@ -17,3 +17,4 @@ export type LoadModelResult = {
     errors: string[];
 };
 export declare function loadModel(request: ViewerLoadRequest, config: ViewerConfig, api: ViewerApi): Promise<LoadModelResult>;
+//# sourceMappingURL=loadModel.d.ts.map

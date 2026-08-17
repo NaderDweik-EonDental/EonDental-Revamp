@@ -20,10 +20,6 @@ jobs:
     env:
       PAGES_BASE_PATH: /${{ github.event.repository.name }}/
       PAGES_ORIGIN: https://${{ github.repository_owner }}.github.io
-      # Optional: add VITE_HF_TOKEN in repo Settings → Secrets for smile AI on Pages
-      VITE_HF_TOKEN: ${{ secrets.VITE_HF_TOKEN }}
-      VITE_HF_IMAGE_MODEL: ${{ vars.VITE_HF_IMAGE_MODEL }}
-      VITE_HF_PROVIDER: ${{ vars.VITE_HF_PROVIDER }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

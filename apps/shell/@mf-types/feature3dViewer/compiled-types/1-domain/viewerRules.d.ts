@@ -19,3 +19,4 @@ export type ViewerValidationResult = {
 };
 export declare function isAllowedFormat(format: string, config: ViewerConfig): format is ModelFormat;
 export declare function isValidViewerRequest(request: ViewerLoadRequest, config: ViewerConfig): ViewerValidationResult;
+//# sourceMappingURL=viewerRules.d.ts.map

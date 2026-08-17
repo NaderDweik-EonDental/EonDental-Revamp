@@ -194,7 +194,6 @@ eon-frontend/
 │   │   │   ├── 2-application/         # use-cases orchestrating domain + ports
 │   │   │   ├── 3-infrastructure/      # API adapters (mock today, real API later)
 │   │   │   ├── 4-presentation/        # React components, the only layer that imports React
-│   │   │   ├── manifest.json
 │   │   │   └── FeatureRoot.tsx        # the exposed entry point, implements FeatureComponent
 │   │   └── vite.config.ts             # remote federation config
 │   ├── feature-smile-simulation/      # same internal shape (1-domain / 2-application / 3-infrastructure / 4-presentation)
@@ -207,7 +206,8 @@ eon-frontend/
 │       ├── data/
 │       │   ├── clients.json
 │       │   ├── doctors.json
-│       │   └── feature-catalog.json
+│       │   ├── feature-catalog.json
+│       │   └── feature-configs.json
 │       └── handlers.ts                # MSW handlers serving the JSON above
 │
 ├── nx.json
@@ -246,34 +246,7 @@ export type FeatureComponent<TConfig = Record<string, unknown>> = ComponentType<
 >;
 ```
 
-Every remote also ships a `manifest.json` — this is metadata *about* the feature, read by the
-shell and by the admin views, never imported by code:
-
-```json
-{
-  "featureId": "case-submission",
-  "displayName": "Case submission",
-  "owner": "clinical-team",
-  "allowedRoles": ["doctor"],
-  "versions": [
-    { "version": "1.0.0", "status": "deprecated" },
-    { "version": "2.1.0", "status": "active" }
-  ],
-  "configSchema": {
-    "type": "object",
-    "properties": {
-      "requireXray": { "type": "boolean" },
-      "maxAttachments": { "type": "number" }
-    },
-    "required": ["requireXray", "maxAttachments"]
-  }
-}
-```
-
-**Rule:** any config object passed into a feature is validated against `configSchema` at the
-boundary (in the feature's own `3-infrastructure/`, using something like `ajv`) before it reaches
-`4-presentation/`. Never trust the config object blindly — a bad or stale client config is the most
-likely source of a silent, hard-to-diagnose bug in this system, so fail loud and early instead.
+MVP config is plain JSON in `mocks/config-api/data/`. Remotes trust the object the shell passes in; product rules still live in `isValid*` use-cases.
 
 ---
 
@@ -291,7 +264,6 @@ remotes/feature-case-submission/src/
 ├── 4-presentation/
 │   ├── CaseSubmissionScreen.tsx   # renders state, calls application/ via a hook
 │   └── useCaseSubmission.ts       # the only place React and application/ meet
-├── manifest.json
 └── FeatureRoot.tsx          # implements FeatureComponent, the federation entry point
 ```
 
@@ -430,7 +402,14 @@ nothing in `apps/shell` or any `remotes/*` changes.
 ## 9. The shell: view switcher
 
 The dropdown that flips between super-admin / client-admin / doctor views is a **development
-convenience for now**, not a production "view as" feature. Gate it explicitly:
+convenience for now**, not a production "view as" feature. Gate it explicitly. It lists **every
+doctor and client** from the mock config API (not three hardcoded personas) so adding rows to
+`doctors.json` / `clients.json` — or creating a client in super-admin — shows up in the menu.
+
+```tsx
+// apps/shell/src/view-switcher/ViewSwitcherDropdown.tsx
+if (import.meta.env.VITE_ENABLE_VIEW_SWITCHER !== 'true') return null;
+```
 
 ```tsx
 // apps/shell/src/view-switcher/ViewSwitcherDropdown.tsx
@@ -463,9 +442,8 @@ screens, and vice versa, even though they ship in the same build.
 - **No speculative abstraction.** Build `case-submission` completely and for real before pulling
   anything shared into `core-sdk` or `core-entitlements`. A second feature confirming the pattern
   is the trigger to generalize — not before.
-- **Validate config at the boundary, always.** Every feature validates its incoming `config`
-  against its own `configSchema` in `3-infrastructure/`, and fails loud (a clear error state, not a
-  silent `undefined`) if it doesn't match.
+- **Config is JSON.** Feature versions and tenant rows live in `mocks/config-api/data/`. Refresh
+  the page to reset in-memory edits back to those files.
 - **Small, scoped commits.** A single PR touching `shell/`, `core-entitlements/`, and
   `feature-case-submission/` simultaneously is a sign scope crept — split it into three.
 - **Ask when this document doesn't cover something**, rather than inventing a convention on the
@@ -482,7 +460,7 @@ Set up pnpm workspaces + Nx. Build `core-sdk` (types only) and `core-entitlement
 *Done when:* `pnpm test` passes for `core-entitlements` with every branch from §3 covered.
 
 **Phase 1 — First remote, standalone**
-Build `feature-case-submission` completely: all four layers, `manifest.json`, federation config.
+Build `feature-case-submission` completely: all four layers, federation config.
 *Done when:* the remote builds and serves its own `remoteEntry.js`/manifest with no shell involved.
 
 **Phase 2 — Shell + doctor view consuming that one remote**

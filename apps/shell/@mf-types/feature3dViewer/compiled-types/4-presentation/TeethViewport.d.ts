@@ -11,3 +11,4 @@ type TeethViewportProps = {
 };
 export declare function TeethViewport({ upperFile, lowerFile, camera, active, onStats, onError, }: TeethViewportProps): import("react").JSX.Element;
 export {};
+//# sourceMappingURL=TeethViewport.d.ts.map

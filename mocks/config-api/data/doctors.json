@@ -23,7 +23,7 @@
   },
   {
     "userId": "doc_789",
-    "clientId": "eon-dental",
+    "clientId": "eon-dental-2",
     "role": "doctor",
     "assignments": [
       { "featureId": "case-submission", "assignedVersion": "2.1.0" },

@@ -7,3 +7,4 @@ export interface CaseApiClientOptions {
 export declare function createCaseApiClient(options: CaseApiClientOptions): CaseApi;
 /** In-memory stand-in for local remote development until a real/mock API exists. */
 export declare function createInMemoryCaseApi(): CaseApi;
+//# sourceMappingURL=caseApiClient.d.ts.map

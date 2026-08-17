@@ -1,7 +1,6 @@
 import type { FeatureProps } from '@eon/core-sdk';
 import { ViewerScreen } from './4-presentation/ViewerScreen.js';
 import { createInMemoryViewerApi } from './3-infrastructure/viewerApiClient.js';
-import { validateViewerConfig } from './3-infrastructure/validateViewerConfig.js';
 import type { CameraPreset } from './1-domain/viewerRules.js';
 
 export type ViewerFeatureConfig = {
@@ -23,23 +22,9 @@ function FeatureRoot({
     );
   }
 
-  const validated = validateViewerConfig(config);
-  if (!validated.ok) {
-    return (
-      <div role="alert" style={{ padding: '1.5rem', color: '#9b1c1c' }}>
-        <strong>Invalid 3d-viewer config</strong>
-        <ul>
-          {validated.errors.map((error) => (
-            <li key={error}>{error}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
-
   return (
     <ViewerScreen
-      config={validated.config}
+      config={config}
       api={api}
       version={entitlement.version}
     />

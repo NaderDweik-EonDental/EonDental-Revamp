@@ -57,3 +57,4 @@ export type CaseValidationResult = {
 export declare function requiredAttachmentsFor(config: CaseConfig): AttachmentType[];
 export declare function hasPackagesStep(config: CaseConfig): boolean;
 export declare function isValidCase(draft: CaseDraft, config: CaseConfig): CaseValidationResult;
+//# sourceMappingURL=caseRules.d.ts.map

@@ -92,15 +92,6 @@ for (const pkg of [
 for (const remote of remotes) {
   console.log(`\n→ ${remote.package} (base ${remote.base})`);
   const remoteEnv = { VITE_BASE_PATH: remote.base };
-  if (remote.name === 'smile-simulation') {
-    for (const key of [
-      'VITE_HF_TOKEN',
-      'VITE_HF_IMAGE_MODEL',
-      'VITE_HF_PROVIDER',
-    ]) {
-      if (process.env[key]) remoteEnv[key] = process.env[key];
-    }
-  }
   run('pnpm', ['--filter', remote.package, 'build'], remoteEnv);
 }
 

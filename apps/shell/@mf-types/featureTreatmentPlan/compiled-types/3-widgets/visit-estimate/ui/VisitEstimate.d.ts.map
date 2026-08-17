@@ -1,1 +1,1 @@
-{"version":3,"file":"VisitEstimate.d.ts","sourceRoot":"","sources":["../../../../../../src/3-widgets/visit-estimate/ui/VisitEstimate.tsx"],"names":[],"mappings":"AAAA,OAAO,EAAsB,KAAK,SAAS,EAAE,MAAM,6CAA6C,CAAC;AAEjG,wBAAgB,aAAa,CAAC,KAAK,EAAE;IAAE,KAAK,EAAE,SAAS,CAAA;CAAE,+BAaxD"}
+{"version":3,"file":"VisitEstimate.d.ts","sourceRoot":"","sources":["../../../../../../src/3-widgets/visit-estimate/ui/VisitEstimate.tsx"],"names":[],"mappings":"AAAA,OAAO,EAAsB,KAAK,SAAS,EAAE,MAAM,2BAA2B,CAAC;AAE/E,wBAAgB,aAAa,CAAC,KAAK,EAAE;IAAE,KAAK,EAAE,SAAS,CAAA;CAAE,+BAaxD"}

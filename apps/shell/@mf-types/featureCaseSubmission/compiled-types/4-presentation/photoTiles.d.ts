@@ -13,3 +13,4 @@ export interface PhotoSectionDef {
     tiles: PhotoTileDef[];
 }
 export declare const PHOTO_SECTIONS: PhotoSectionDef[];
+//# sourceMappingURL=photoTiles.d.ts.map

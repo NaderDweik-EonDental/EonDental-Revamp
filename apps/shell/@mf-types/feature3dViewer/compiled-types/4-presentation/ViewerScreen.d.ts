@@ -6,3 +6,4 @@ export declare function ViewerScreen(props: {
     api: ViewerApi;
     version: string | null;
 }): import("react").JSX.Element;
+//# sourceMappingURL=ViewerScreen.d.ts.map

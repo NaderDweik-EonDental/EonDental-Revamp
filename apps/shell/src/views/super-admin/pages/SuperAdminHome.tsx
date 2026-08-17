@@ -128,6 +128,7 @@ export function SuperAdminHome() {
                 );
                 await configClient.createClient({ clientId, entitlements });
                 setNewClientId('');
+                bumpConfigRevision();
                 await reload();
                 setMessage(`Created client ${clientId}`);
               })();

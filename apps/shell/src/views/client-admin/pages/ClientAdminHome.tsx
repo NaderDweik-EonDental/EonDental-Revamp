@@ -109,6 +109,11 @@ export function ClientAdminHome() {
       </header>
 
       {message ? <p className="client-admin__message">{message}</p> : null}
+      {error ? (
+        <p className="client-admin__meta" role="alert">
+          {error}
+        </p>
+      ) : null}
 
       <div className="client-admin__ceilings">
         <h2>Client ceiling (from super-admin)</h2>
@@ -145,15 +150,61 @@ export function ClientAdminHome() {
         )}
       </div>
 
-      {doctors.map((doctor) => (
-        <DoctorAssignmentCard
-          key={doctor.userId}
-          doctor={doctor}
-          client={client}
-          catalog={catalog}
-          onSave={saveAssignments}
-        />
-      ))}
+      <form
+        className="client-admin__add-doctor"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const input = form.elements.namedItem('userId') as HTMLInputElement;
+          const userId = input.value.trim();
+          if (!userId) return;
+          void (async () => {
+            setMessage(null);
+            setError(null);
+            try {
+              await configClient.createDoctor({
+                userId,
+                clientId: client.clientId,
+                role: 'doctor',
+                assignments: [],
+              });
+              input.value = '';
+              bumpConfigRevision();
+              await reload();
+              setMessage(`Added doctor ${userId}.`);
+            } catch (err) {
+              setError(err instanceof Error ? err.message : String(err));
+            }
+          })();
+        }}
+      >
+        <h2>Doctors</h2>
+        <p className="client-admin__meta">
+          Version dropdowns are per doctor, not per clinic. Super-admin only
+          sets the ceiling above.
+        </p>
+        <div className="client-admin__inline">
+          <input name="userId" placeholder="new-doctor-id" autoComplete="off" />
+          <button type="submit">Add doctor</button>
+        </div>
+      </form>
+
+      {doctors.length === 0 ? (
+        <p className="client-admin__empty">
+          No doctors belong to <code>{client.clientId}</code> yet. Add one
+          above — then each feature gets a version dropdown.
+        </p>
+      ) : (
+        doctors.map((doctor) => (
+          <DoctorAssignmentCard
+            key={doctor.userId}
+            doctor={doctor}
+            client={client}
+            catalog={catalog}
+            onSave={saveAssignments}
+          />
+        ))
+      )}
     </section>
   );
 }

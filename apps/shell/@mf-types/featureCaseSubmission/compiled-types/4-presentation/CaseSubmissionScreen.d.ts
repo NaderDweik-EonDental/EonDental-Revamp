@@ -7,3 +7,4 @@ export interface CaseSubmissionScreenProps {
     version: string | null;
 }
 export declare function CaseSubmissionScreen({ config, api, version, }: CaseSubmissionScreenProps): import("react").JSX.Element;
+//# sourceMappingURL=CaseSubmissionScreen.d.ts.map

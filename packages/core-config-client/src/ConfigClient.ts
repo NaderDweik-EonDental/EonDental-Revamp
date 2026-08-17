@@ -30,7 +30,6 @@ export interface FeatureCatalogEntry {
 
 export interface ConfigClient {
   getFeatureCatalog(): Promise<FeatureCatalogEntry[]>;
-  putFeatureCatalog(catalog: FeatureCatalogEntry[]): Promise<FeatureCatalogEntry[]>;
   listClients(): Promise<ClientRecord[]>;
   getClient(clientId: string): Promise<ClientRecord | null>;
   createClient(client: ClientRecord): Promise<ClientRecord>;
@@ -40,6 +39,7 @@ export interface ConfigClient {
   ): Promise<ClientRecord>;
   listDoctors(clientId?: string | null): Promise<DoctorRecord[]>;
   getDoctor(userId: string): Promise<DoctorRecord | null>;
+  createDoctor(doctor: DoctorRecord): Promise<DoctorRecord>;
   putDoctorAssignments(
     userId: string,
     assignments: FeatureAssignment[],

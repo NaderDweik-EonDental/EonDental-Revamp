@@ -34,8 +34,6 @@ export function SmileSimulationScreen(props: {
     sourcePhoto,
     afterImageUrl,
     previewError,
-    aiModelUsed,
-    aiReady,
     setPatientId,
     setSourcePhoto,
     setTargetShade,
@@ -211,43 +209,24 @@ export function SmileSimulationScreen(props: {
                 targetShade={draft.targetShade}
                 includeWhitening={draft.includeWhiteningPreview}
                 showShadeAndWhitening={showShadeAndWhitening}
-                aiReady={aiReady}
               />
             </div>
 
             <footer className="smile-sim__footer">
               <p className="smile-sim__footer-hint">
                 {sourcePhoto
-                  ? 'Run simulation to generate an AI after image with aligned teeth, then drag the slider.'
+                  ? 'Run simulation to preview before/after, then drag the slider.'
                   : 'Upload a smile photo to begin.'}
               </p>
               <button
                 type="submit"
                 className="smile-sim__submit"
-                disabled={running || !canRun || !aiReady}
+                disabled={running || !canRun}
               >
-                {running ? 'Generating with Hugging Face…' : 'Run AI simulation'}
+                {running ? 'Running…' : 'Run simulation'}
               </button>
             </footer>
           </form>
-
-          {!aiReady ? (
-            <div className="smile-sim__result smile-sim__result--error" role="alert">
-              <p>
-                Set <code>VITE_HF_TOKEN</code> in{' '}
-                <code>remotes/feature-smile-simulation/.env</code> (free token
-                from{' '}
-                <a
-                  href="https://huggingface.co/settings/tokens"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  huggingface.co/settings/tokens
-                </a>
-                ), then restart the smile-simulation remote.
-              </p>
-            </div>
-          ) : null}
 
           {lastResult ? (
             <div
@@ -262,9 +241,6 @@ export function SmileSimulationScreen(props: {
                 <p>
                   Simulation <strong>{lastResult.simulation.simulationId}</strong>{' '}
                   ready
-                  {afterImageUrl
-                    ? ` · Hugging Face after image${aiModelUsed ? ` (${aiModelUsed})` : ''}`
-                    : ''}
                 </p>
               ) : (
                 <ul>

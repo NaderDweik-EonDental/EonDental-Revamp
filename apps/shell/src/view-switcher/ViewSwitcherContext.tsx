@@ -2,43 +2,72 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
-import { subscribeStore } from '@eon/mocks-config-api';
 import type { AuthRole, AuthSession } from '../app-shell/authTypes.js';
 
 export type ShellView = AuthRole;
 
-const VIEW_SESSIONS: Record<ShellView, AuthSession> = {
-  doctor: {
-    userId: 'doc_123',
-    role: 'doctor',
-    displayName: 'Dr. Mock',
-  },
-  'client-admin': {
-    userId: 'admin_eon',
-    role: 'client-admin',
-    displayName: 'EON Client Admin',
-  },
-  'super-admin': {
+const DOCTOR_STORAGE_KEY = 'eon-view-doctor-id';
+const CLIENT_STORAGE_KEY = 'eon-view-client-id';
+const DEFAULT_DOCTOR_ID = 'doc_123';
+const DEFAULT_CLIENT_ID = 'eon-dental';
+
+function readStored(key: string, fallback: string): string {
+  if (typeof window === 'undefined') {
+    return fallback;
+  }
+  return window.sessionStorage.getItem(key)?.trim() || fallback;
+}
+
+function writeStored(key: string, value: string): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  window.sessionStorage.setItem(key, value);
+}
+
+function sessionFor(
+  view: ShellView,
+  doctorId: string,
+  clientId: string,
+): AuthSession {
+  if (view === 'doctor') {
+    return {
+      userId: doctorId,
+      role: 'doctor',
+      displayName: doctorId,
+    };
+  }
+  if (view === 'client-admin') {
+    return {
+      userId: `admin_${clientId}`,
+      role: 'client-admin',
+      displayName: `${clientId} admin`,
+    };
+  }
+  return {
     userId: 'super_1',
     role: 'super-admin',
     displayName: 'Super Admin',
-  },
-};
+  };
+}
 
 export interface ViewSwitcherContextValue {
   view: ShellView;
   session: AuthSession;
-  /** Client the client-admin session manages (mock). */
+  /** Client the client-admin session manages. */
   managedClientId: string;
-  /** Increments when super-admin persists entitlements so other views refetch. */
+  selectedDoctorId: string;
+  /** Increments when mock config changes so views and the switcher refetch. */
   configRevision: number;
   bumpConfigRevision: () => void;
   setView: (view: ShellView) => void;
+  impersonateDoctor: (userId: string) => void;
+  impersonateClientAdmin: (clientId: string) => void;
+  impersonateSuperAdmin: () => void;
 }
 
 const ViewSwitcherContext = createContext<ViewSwitcherContextValue | null>(
@@ -71,6 +100,12 @@ export function ViewSwitcherProvider({
   const [view, setViewState] = useState<ShellView>(
     initialView ?? viewFromLocation(),
   );
+  const [selectedDoctorId, setSelectedDoctorId] = useState(() =>
+    readStored(DOCTOR_STORAGE_KEY, DEFAULT_DOCTOR_ID),
+  );
+  const [managedClientId, setManagedClientId] = useState(() =>
+    readStored(CLIENT_STORAGE_KEY, DEFAULT_CLIENT_ID),
+  );
   const [configRevision, setConfigRevision] = useState(0);
 
   const setView = useCallback((next: ShellView) => {
@@ -81,18 +116,46 @@ export function ViewSwitcherProvider({
     setConfigRevision((current) => current + 1);
   }, []);
 
-  useEffect(() => subscribeStore(bumpConfigRevision), [bumpConfigRevision]);
+  const impersonateDoctor = useCallback((userId: string) => {
+    writeStored(DOCTOR_STORAGE_KEY, userId);
+    setSelectedDoctorId(userId);
+    setViewState('doctor');
+  }, []);
+
+  const impersonateClientAdmin = useCallback((clientId: string) => {
+    writeStored(CLIENT_STORAGE_KEY, clientId);
+    setManagedClientId(clientId);
+    setViewState('client-admin');
+  }, []);
+
+  const impersonateSuperAdmin = useCallback(() => {
+    setViewState('super-admin');
+  }, []);
 
   const value = useMemo<ViewSwitcherContextValue>(
     () => ({
       view,
-      session: VIEW_SESSIONS[view],
-      managedClientId: 'eon-dental',
+      session: sessionFor(view, selectedDoctorId, managedClientId),
+      managedClientId,
+      selectedDoctorId,
       configRevision,
       bumpConfigRevision,
       setView,
+      impersonateDoctor,
+      impersonateClientAdmin,
+      impersonateSuperAdmin,
     }),
-    [bumpConfigRevision, configRevision, setView, view],
+    [
+      bumpConfigRevision,
+      configRevision,
+      impersonateClientAdmin,
+      impersonateDoctor,
+      impersonateSuperAdmin,
+      managedClientId,
+      selectedDoctorId,
+      setView,
+      view,
+    ],
   );
 
   return (

@@ -1,19 +1,11 @@
 import type { FeatureProps } from '@eon/core-sdk';
+import type { CaseConfig } from './1-domain/caseRules.js';
 import { CaseSubmissionScreen } from './4-presentation/CaseSubmissionScreen.js';
 import { createInMemoryCaseApi } from './3-infrastructure/caseApiClient.js';
-import { validateCaseConfig } from './3-infrastructure/validateCaseConfig.js';
-
-export type CaseSubmissionConfig = {
-  requireXray: boolean;
-  maxAttachments: number;
-};
 
 const api = createInMemoryCaseApi();
 
-function FeatureRoot({
-  config,
-  entitlement,
-}: FeatureProps<CaseSubmissionConfig>) {
+function FeatureRoot({ config, entitlement }: FeatureProps<CaseConfig>) {
   if (!entitlement.enabled) {
     return (
       <div role="status" style={{ padding: '1.5rem', fontFamily: 'sans-serif' }}>
@@ -22,30 +14,9 @@ function FeatureRoot({
     );
   }
 
-  const validated = validateCaseConfig(config);
-  if (!validated.ok) {
-    return (
-      <div
-        role="alert"
-        style={{
-          padding: '1.5rem',
-          fontFamily: 'sans-serif',
-          color: '#9b1c1c',
-        }}
-      >
-        <strong>Invalid case-submission config</strong>
-        <ul>
-          {validated.errors.map((error) => (
-            <li key={error}>{error}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
-
   return (
     <CaseSubmissionScreen
-      config={validated.config}
+      config={config}
       api={api}
       version={entitlement.version}
     />

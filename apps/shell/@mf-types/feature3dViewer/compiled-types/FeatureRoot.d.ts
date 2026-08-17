@@ -6,3 +6,4 @@ export type ViewerFeatureConfig = {
 };
 declare function FeatureRoot({ config, entitlement, }: FeatureProps<ViewerFeatureConfig>): import("react").JSX.Element;
 export default FeatureRoot;
+//# sourceMappingURL=FeatureRoot.d.ts.map

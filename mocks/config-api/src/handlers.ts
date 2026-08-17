@@ -5,23 +5,15 @@ import {
   type TenantEntitlement,
 } from '@eon/core-entitlements';
 import {
-  persistStore,
   store,
   type ClientEntitlementRecord,
   type ClientRecord,
+  type DoctorRecord,
   type FeatureAssignment,
-  type FeatureCatalogEntry,
 } from './store.js';
 
 export const configApiHandlers = [
   http.get('/api/feature-catalog', () => {
-    return HttpResponse.json(store.featureCatalog);
-  }),
-
-  http.put('/api/feature-catalog', async ({ request }) => {
-    const body = (await request.json()) as FeatureCatalogEntry[];
-    store.featureCatalog = body;
-    persistStore();
     return HttpResponse.json(store.featureCatalog);
   }),
 
@@ -46,7 +38,6 @@ export const configApiHandlers = [
       );
     }
     store.clients.push(body);
-    persistStore();
     return HttpResponse.json(body, { status: 201 });
   }),
 
@@ -57,7 +48,6 @@ export const configApiHandlers = [
     }
     const entitlements = (await request.json()) as ClientEntitlementRecord[];
     client.entitlements = entitlements;
-    persistStore();
     return HttpResponse.json(client);
   }),
 
@@ -69,6 +59,40 @@ export const configApiHandlers = [
         ? store.doctors
         : store.doctors.filter((d) => d.clientId === clientId);
     return HttpResponse.json(doctors);
+  }),
+
+  http.post('/api/doctors', async ({ request }) => {
+    const body = (await request.json()) as DoctorRecord;
+    const userId = body.userId?.trim();
+    const clientId = body.clientId?.trim();
+    if (!userId || !clientId) {
+      return HttpResponse.json(
+        { message: 'userId and clientId are required' },
+        { status: 400 },
+      );
+    }
+    if (store.doctors.some((d) => d.userId === userId)) {
+      return HttpResponse.json(
+        { message: 'Doctor already exists' },
+        { status: 409 },
+      );
+    }
+    if (!store.clients.some((c) => c.clientId === clientId)) {
+      return HttpResponse.json(
+        { message: `Client ${clientId} not found` },
+        { status: 400 },
+      );
+    }
+    const doctor: DoctorRecord = {
+      userId,
+      clientId,
+      role: 'doctor',
+      assignments: (body.assignments ?? []).filter((a) =>
+        Boolean(a.assignedVersion),
+      ),
+    };
+    store.doctors.push(doctor);
+    return HttpResponse.json(doctor, { status: 201 });
   }),
 
   http.get('/api/doctors/:userId', ({ params }) => {
@@ -115,7 +139,6 @@ export const configApiHandlers = [
     }
 
     doctor.assignments = sanitized.assignments;
-    persistStore();
     return HttpResponse.json(doctor);
   }),
 

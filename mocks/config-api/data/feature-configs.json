@@ -1,0 +1,71 @@
+{
+  "case-submission": {
+    "1.0.0": { "requireXray": false, "maxAttachments": 5 },
+    "2.1.0": {
+      "requireXray": true,
+      "maxAttachments": 8,
+      "packages": [
+        {
+          "id": "mov-10",
+          "code": "MOV' 10",
+          "label": "MOV' 10",
+          "accent": "graphite",
+          "description": "Best for mild cases like crowding, spacing, or relapse.",
+          "maxAlignerSteps": 10,
+          "durationMonths": 12,
+          "refinements": 1,
+          "tsRevisions": 2,
+          "retainerSets": 1
+        },
+        {
+          "id": "eon-basic",
+          "code": "EON_BASIC",
+          "label": "EON_BASIC",
+          "accent": "slate",
+          "description": "Best for mild cases like crowding, spacing, or relapse.",
+          "maxAlignerSteps": 10,
+          "durationMonths": "unlimited",
+          "refinements": 1,
+          "tsRevisions": "unlimited",
+          "retainerSets": "unlimited"
+        },
+        {
+          "id": "eon-plus",
+          "code": "EON_PLUS",
+          "label": "EON_PLUS",
+          "accent": "emerald",
+          "description": "Covers a wide range of mild to moderate cases.",
+          "maxAlignerSteps": 24,
+          "durationMonths": "unlimited",
+          "refinements": 2,
+          "tsRevisions": "unlimited",
+          "retainerSets": "unlimited"
+        },
+        {
+          "id": "eon-pro",
+          "code": "EON_PRO",
+          "label": "EON_PRO",
+          "accent": "teal",
+          "description": "Unlimited aligner steps for cases that need ongoing refinement.",
+          "maxAlignerSteps": "unlimited",
+          "durationMonths": 36,
+          "refinements": "unlimited",
+          "tsRevisions": "unlimited",
+          "retainerSets": 2
+        }
+      ]
+    }
+  },
+  "smile-simulation": {
+    "1.0.0": { "maxShadeOptions": 0, "allowWhiteningPreview": false },
+    "1.4.0": { "maxShadeOptions": 3, "allowWhiteningPreview": true }
+  },
+  "3d-viewer": {
+    "1.0.0": { "allowedFormats": ["stl"], "defaultCamera": "front" },
+    "1.3.1": { "allowedFormats": ["stl", "ply"], "defaultCamera": "front" }
+  },
+  "treatment-plan": {
+    "1.0.0": { "maxStages": 3, "allowVisitEstimate": false },
+    "1.1.0": { "maxStages": 5, "allowVisitEstimate": true }
+  }
+}

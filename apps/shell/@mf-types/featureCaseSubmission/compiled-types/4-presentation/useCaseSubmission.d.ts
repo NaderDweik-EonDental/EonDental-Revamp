@@ -20,3 +20,4 @@ export interface UseCaseSubmission {
     clearResult: () => void;
 }
 export declare function useCaseSubmission({ config, api, }: UseCaseSubmissionArgs): UseCaseSubmission;
+//# sourceMappingURL=useCaseSubmission.d.ts.map

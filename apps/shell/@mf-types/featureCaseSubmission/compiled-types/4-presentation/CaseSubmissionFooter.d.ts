@@ -11,3 +11,4 @@ type CaseSubmissionFooterProps = {
 };
 export declare function CaseSubmissionFooter({ mode, canSave, canNext, submitting, onCancel, onSave, onPrevious, onNext, onSubmitNewCase, }: CaseSubmissionFooterProps): import("react").JSX.Element;
 export {};
+//# sourceMappingURL=CaseSubmissionFooter.d.ts.map

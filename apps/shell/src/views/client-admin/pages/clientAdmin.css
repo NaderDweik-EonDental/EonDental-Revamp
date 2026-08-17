@@ -68,3 +68,33 @@
   opacity: 0.65;
   cursor: not-allowed;
 }
+
+.client-admin__empty {
+  margin: 0;
+  padding: 1rem 1.15rem;
+  border: 1px dashed #c5ced8;
+  border-radius: 0.5rem;
+  color: #5b6b7c;
+  font-size: 0.9rem;
+}
+
+.client-admin__add-doctor {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid #d7dee6;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 75%);
+}
+
+.client-admin__inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.client-admin__inline input {
+  min-width: 12rem;
+}
+

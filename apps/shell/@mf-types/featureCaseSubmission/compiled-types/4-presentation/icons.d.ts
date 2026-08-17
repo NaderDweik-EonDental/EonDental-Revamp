@@ -15,3 +15,4 @@ export declare function RetainerIcon(props: IconProps): import("react").JSX.Elem
 export declare function UploadIcon(props: IconProps): import("react").JSX.Element;
 export declare function LinkIcon(props: IconProps): import("react").JSX.Element;
 export {};
+//# sourceMappingURL=icons.d.ts.map
