@@ -23,6 +23,8 @@ const origin = (process.env.PAGES_ORIGIN ?? 'https://naderdweik-eondental.github
   '',
 );
 const siteUrl = `${origin}${basePath}`;
+const cacheBust =
+  process.env.GITHUB_SHA?.slice(0, 8) ?? String(Date.now());
 
 const remotes = [
   {
@@ -77,6 +79,7 @@ console.log(`Building GitHub Pages site`);
 console.log(`  origin:   ${origin}`);
 console.log(`  base:     ${basePath}`);
 console.log(`  site URL: ${siteUrl}`);
+console.log(`  cache:    ${cacheBust}`);
 
 run('pnpm', ['install', '--frozen-lockfile']);
 
@@ -101,7 +104,7 @@ const shellEnv = {
   VITE_ENABLE_VIEW_SWITCHER: 'true',
 };
 for (const remote of remotes) {
-  shellEnv[remote.envKey] = `${siteUrl}remotes/${remote.name}/mf-manifest.json`;
+  shellEnv[remote.envKey] = `${siteUrl}remotes/${remote.name}/mf-manifest.json?v=${cacheBust}`;
 }
 
 console.log('\n→ @eon/shell');
