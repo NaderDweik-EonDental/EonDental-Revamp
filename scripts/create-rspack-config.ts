@@ -1,3 +1,7 @@
+/**
+ * Unused by apps. Each app/remote has a full rspack.config.ts instead.
+ * Kept as a reference for the shared Module Federation + SWC shape.
+ */
 import path from 'node:path';
 import { rspack, type Configuration } from '@rspack/core';
 import { ReactRefreshRspackPlugin } from '@rspack/plugin-react-refresh';

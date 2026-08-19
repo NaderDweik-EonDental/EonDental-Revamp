@@ -1,4 +1,8 @@
 import type { FeatureId } from '@eon/core-entitlements';
+import clientsSeed from '@eon/mocks-config-api/data/clients.json';
+import doctorsSeed from '@eon/mocks-config-api/data/doctors.json';
+import featureCatalogSeed from '@eon/mocks-config-api/data/feature-catalog.json';
+import featureConfigsSeed from '@eon/mocks-config-api/data/feature-configs.json';
 import type {
   ClientEntitlementRecord,
   ClientRecord,
@@ -8,137 +12,119 @@ import type {
   FeatureCatalogEntry,
 } from './ConfigClient.js';
 
-export interface HttpConfigClientOptions {
-  baseUrl?: string;
-  fetchImpl?: typeof fetch;
-}
+type FeatureConfigByVersion = Record<
+  string,
+  Record<string, Record<string, unknown>>
+>;
 
-async function readJsonOrNull<T>(response: Response): Promise<T | null> {
-  if (response.status === 404) {
-    return null;
-  }
-  if (!response.ok) {
-    throw new Error(`Config API error: ${response.status} ${response.statusText}`);
-  }
-  return (await response.json()) as T;
-}
-
-async function readJson<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    throw new Error(`Config API error: ${response.status} ${response.statusText}`);
-  }
-  return (await response.json()) as T;
+function clone<T>(value: T): T {
+  return structuredClone(value) as T;
 }
 
 /**
- * HTTP implementation of ConfigClient.
- * Against MSW mock handlers today; swap base URL / hosting later.
+ * In-memory ConfigClient seeded from mocks/config-api/data/*.json.
+ * Writes last until reload. No HTTP / MSW.
  */
 export class MockConfigClient implements ConfigClient {
-  private readonly baseUrl: string;
-  private readonly fetchImpl: typeof fetch;
+  private readonly clients: ClientRecord[];
+  private readonly doctors: DoctorRecord[];
+  private readonly featureCatalog: FeatureCatalogEntry[];
+  private readonly featureConfigs: FeatureConfigByVersion;
 
-  constructor(options: HttpConfigClientOptions = {}) {
-    this.baseUrl = (options.baseUrl ?? '/api').replace(/\/$/, '');
-    // Don't store unbound `fetch` — browsers require Window as `this`.
-    this.fetchImpl =
-      options.fetchImpl ?? ((input, init) => globalThis.fetch(input, init));
+  constructor() {
+    this.clients = clone(clientsSeed) as ClientRecord[];
+    this.doctors = clone(doctorsSeed) as DoctorRecord[];
+    this.featureCatalog = clone(featureCatalogSeed) as FeatureCatalogEntry[];
+    this.featureConfigs = clone(featureConfigsSeed) as FeatureConfigByVersion;
   }
 
   async getFeatureCatalog(): Promise<FeatureCatalogEntry[]> {
-    const response = await this.fetchImpl(`${this.baseUrl}/feature-catalog`);
-    const data = await readJsonOrNull<FeatureCatalogEntry[]>(response);
-    return data ?? [];
+    return this.featureCatalog;
   }
 
   async listClients(): Promise<ClientRecord[]> {
-    const response = await this.fetchImpl(`${this.baseUrl}/clients`);
-    return readJson<ClientRecord[]>(response);
+    return this.clients;
   }
 
   async getClient(clientId: string): Promise<ClientRecord | null> {
-    const response = await this.fetchImpl(
-      `${this.baseUrl}/clients/${encodeURIComponent(clientId)}`,
-    );
-    return readJsonOrNull<ClientRecord>(response);
+    return this.clients.find((c) => c.clientId === clientId) ?? null;
   }
 
   async createClient(client: ClientRecord): Promise<ClientRecord> {
-    const response = await this.fetchImpl(`${this.baseUrl}/clients`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(client),
-    });
-    return readJson<ClientRecord>(response);
+    if (this.clients.some((c) => c.clientId === client.clientId)) {
+      throw new Error('Client already exists');
+    }
+    this.clients.push(client);
+    return client;
   }
 
   async putClientEntitlements(
     clientId: string,
     entitlements: ClientEntitlementRecord[],
   ): Promise<ClientRecord> {
-    const response = await this.fetchImpl(
-      `${this.baseUrl}/clients/${encodeURIComponent(clientId)}/entitlements`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entitlements),
-      },
-    );
-    return readJson<ClientRecord>(response);
+    const client = this.clients.find((c) => c.clientId === clientId);
+    if (!client) {
+      throw new Error('Client not found');
+    }
+    client.entitlements = entitlements;
+    return client;
   }
 
   async listDoctors(clientId?: string | null): Promise<DoctorRecord[]> {
-    const url =
-      clientId === undefined || clientId === null
-        ? `${this.baseUrl}/doctors`
-        : `${this.baseUrl}/doctors?clientId=${encodeURIComponent(clientId)}`;
-    const response = await this.fetchImpl(url);
-    return readJson<DoctorRecord[]>(response);
+    if (clientId === undefined || clientId === null) {
+      return this.doctors;
+    }
+    return this.doctors.filter((d) => d.clientId === clientId);
   }
 
   async getDoctor(userId: string): Promise<DoctorRecord | null> {
-    const response = await this.fetchImpl(
-      `${this.baseUrl}/doctors/${encodeURIComponent(userId)}`,
-    );
-    return readJsonOrNull<DoctorRecord>(response);
+    return this.doctors.find((d) => d.userId === userId) ?? null;
   }
 
   async createDoctor(doctor: DoctorRecord): Promise<DoctorRecord> {
-    const response = await this.fetchImpl(`${this.baseUrl}/doctors`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(doctor),
-    });
-    return readJson<DoctorRecord>(response); 
+    const userId = doctor.userId?.trim();
+    const clientId = doctor.clientId?.trim();
+    if (!userId || !clientId) {
+      throw new Error('userId and clientId are required');
+    }
+    if (this.doctors.some((d) => d.userId === userId)) {
+      throw new Error('Doctor already exists');
+    }
+    if (!this.clients.some((c) => c.clientId === clientId)) {
+      throw new Error(`Client ${clientId} not found`);
+    }
+    const created: DoctorRecord = {
+      userId,
+      clientId,
+      role: 'doctor',
+      assignments: (doctor.assignments ?? []).filter((a) =>
+        Boolean(a.assignedVersion),
+      ),
+    };
+    this.doctors.push(created);
+    return created;
   }
 
   async putDoctorAssignments(
-    userId: string,        
+    userId: string,
     assignments: FeatureAssignment[],
   ): Promise<DoctorRecord> {
-    const response = await this.fetchImpl(
-      `${this.baseUrl}/doctors/${encodeURIComponent(userId)}/assignments`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(assignments),
-      },
-    );
-    return readJson<DoctorRecord>(response);
+    const doctor = this.doctors.find((d) => d.userId === userId);
+    if (!doctor) {
+      throw new Error('Doctor not found');
+    }
+    doctor.assignments = assignments;
+    return doctor;
   }
 
   async getFeatureConfig(
     featureId: FeatureId,
     version: string,
   ): Promise<Record<string, unknown>> {
-    const response = await this.fetchImpl(
-      `${this.baseUrl}/features/${encodeURIComponent(featureId)}/config?version=${encodeURIComponent(version)}`,
-    );
-    if (!response.ok) {
-      throw new Error(
-        `Feature config not found for ${featureId} v${version}: ${response.status}`,
-      );
+    const config = this.featureConfigs[featureId]?.[version];
+    if (!config) {
+      throw new Error(`Feature config not found for ${featureId} v${version}`);
     }
-    return (await response.json()) as Record<string, unknown>;
+    return config;
   }
 }

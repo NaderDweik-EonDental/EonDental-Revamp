@@ -1,24 +1,102 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createFederationApp } from '../../scripts/create-rspack-config.ts';
+import { rspack, type Configuration } from '@rspack/core';
+import { ReactRefreshRspackPlugin } from '@rspack/plugin-react-refresh';
+import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 
 const context = path.dirname(fileURLToPath(import.meta.url));
+const isDev = process.env.NODE_ENV !== 'production';
+const publicPath =
+  process.env.PUBLIC_PATH ?? process.env.VITE_BASE_PATH ?? 'auto';
 
-export default createFederationApp({
+const shared = {
+  react: { singleton: true, requiredVersion: '^19.0.0', eager: true },
+  'react-dom': { singleton: true, requiredVersion: '^19.0.0', eager: true },
+  'react/jsx-runtime': {
+    singleton: true,
+    requiredVersion: '^19.0.0',
+    eager: true,
+  },
+};
+
+const config: Configuration = {
   context,
-  name: 'featureTreatmentPlan',
-  port: 5004,
-  entry: './src/dev-entry.ts',
-  htmlTemplate: './index.html', // chnage again to test
-  exposes: {
-    './FeatureRoot': './src/FeatureRoot.tsx',
+  mode: isDev ? 'development' : 'production',
+  entry: { main: './src/dev-entry.ts' },
+  output: {
+    path: path.join(context, 'dist'),
+    uniqueName: 'featureTreatmentPlan',
+    publicPath,
+    clean: true,
+    filename: isDev ? '[name].js' : '[name].[contenthash:8].js',
   },
-  aliases: {
-    '@/app': path.join(context, 'src/1-app'),
-    '@/pages': path.join(context, 'src/2-pages'),
-    '@/widgets': path.join(context, 'src/3-widgets'),
-    '@/features': path.join(context, 'src/4-features'),
-    '@/entities': path.join(context, 'src/5-entities'),
-    '@/shared': path.join(context, 'src/6-shared'),
+  resolve: {
+    extensions: ['.tsx', '.ts', '.jsx', '.js'],
+    extensionAlias: { '.js': ['.ts', '.tsx', '.js'] },
+    alias: {
+      '@/app': path.join(context, 'src/1-app'),
+      '@/pages': path.join(context, 'src/2-pages'),
+      '@/widgets': path.join(context, 'src/3-widgets'),
+      '@/features': path.join(context, 'src/4-features'),
+      '@/entities': path.join(context, 'src/5-entities'),
+      '@/shared': path.join(context, 'src/6-shared'),
+    },
   },
-});
+  module: {
+    rules: [
+      { test: /\.(png|jpe?g|gif|svg|stl)$/i, type: 'asset/resource' },
+      { test: /\.css$/, type: 'css' },
+      {
+        test: /\.[jt]sx?$/,
+        loader: 'builtin:swc-loader',
+        options: {
+          jsc: {
+            parser: { syntax: 'typescript', tsx: true },
+            transform: {
+              react: {
+                runtime: 'automatic',
+                development: isDev,
+                refresh: isDev,
+              },
+            },
+          },
+        },
+      },
+    ],
+  },
+  plugins: [
+    new rspack.DefinePlugin({
+      'import.meta.env.DEV': JSON.stringify(isDev),
+      'import.meta.env.PROD': JSON.stringify(!isDev),
+      'import.meta.env.BASE_URL': JSON.stringify(publicPath),
+      'import.meta.env.MODE': JSON.stringify(
+        isDev ? 'development' : 'production',
+      ),
+    }),
+    new rspack.HtmlRspackPlugin({ template: './index.html' }),
+    new ModuleFederationPlugin({
+      name: 'featureTreatmentPlan',
+      filename: 'remoteEntry.js',
+      dts: false,
+      manifest: true,
+      exposes: {
+        './FeatureRoot': './src/FeatureRoot.tsx',
+      },
+      shared,
+    }),
+    ...(isDev ? [new ReactRefreshRspackPlugin()] : []),
+  ],
+  devServer: {
+    port: 5004,
+    host: '0.0.0.0',
+    hot: true,
+    historyApiFallback: true,
+    static: false,
+    headers: { 'Access-Control-Allow-Origin': '*' },
+  },
+  experiments: { css: true },
+  performance: { hints: false },
+  optimization: { runtimeChunk: false },
+};
+
+export default config;

@@ -14,7 +14,6 @@
     "@eon/core-config-client": "workspace:*",
     "@eon/core-entitlements": "workspace:*",
     "@eon/core-sdk": "workspace:*",
-    "@eon/mocks-config-api": "workspace:*",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-error-boundary": "^6.0.0",
@@ -29,12 +28,8 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@types/semver": "^7.7.0",
-    "msw": "^2.10.4",
     "react-refresh": "^0.17.0",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
-  },
-  "msw": {
-    "workerDirectory": ["public"]
   }
 }

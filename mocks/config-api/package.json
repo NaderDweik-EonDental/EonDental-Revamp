@@ -4,26 +4,12 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts"
-    },
     "./data/*": "./data/*"
   },
   "scripts": {
-    "build": "echo \"mocks are source-consumed\"",
+    "build": "echo \"json seeds only\"",
     "test": "echo \"no tests yet\"",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
-  },
-  "dependencies": {
-    "@eon/core-entitlements": "workspace:*"
-  },
-  "devDependencies": {
-    "msw": "^2.10.4",
-    "typescript": "^5.8.3"
-  },
-  "peerDependencies": {
-    "msw": "^2.10.4"
+    "typecheck": "echo \"json seeds only\""
   },
   "nx": {
     "targets": {
@@ -32,4 +18,4 @@
       }
     }
   }
-}
+}   
