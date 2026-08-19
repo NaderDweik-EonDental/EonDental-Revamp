@@ -1,7 +1,13 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "baseUrl": "../..",
+    "paths": {
+      "@eon/core-config-client": ["packages/core-config-client/src/index.ts"],
+      "@eon/core-entitlements": ["packages/core-entitlements/src/index.ts"],
+      "@eon/core-sdk": ["packages/core-sdk/src/index.ts"],
+      "@eon/mocks-config-api": ["mocks/config-api/src/index.ts"]
+    },
     "jsx": "react-jsx",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "noEmit": true

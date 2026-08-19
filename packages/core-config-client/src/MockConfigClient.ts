@@ -109,11 +109,11 @@ export class MockConfigClient implements ConfigClient {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(doctor),
     });
-    return readJson<DoctorRecord>(response);
+    return readJson<DoctorRecord>(response); 
   }
 
   async putDoctorAssignments(
-    userId: string,
+    userId: string,        
     assignments: FeatureAssignment[],
   ): Promise<DoctorRecord> {
     const response = await this.fetchImpl(
